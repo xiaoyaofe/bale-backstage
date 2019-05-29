@@ -15,23 +15,23 @@
           </el-select>
         </el-form-item>
         <!-- <el-form-item label="证书名称" :label-width="formLabelWidth">
-          <el-input v-model="form.certificate_name" autocomplete="off"></el-input>
+          <el-input v-model="form.certificate_name" ></el-input>
         </el-form-item> -->
         <el-form-item label="别名" :label-width="formLabelWidth">
-          <el-input v-model="form.alias" autocomplete="off"></el-input>
+          <el-input v-model="form.alias" ></el-input>
         </el-form-item>
         <el-form-item label="别名密码" :label-width="formLabelWidth">
-          <el-input v-model="form.alias_password" autocomplete="off"></el-input>
+          <el-input v-model="form.alias_password" ></el-input>
         </el-form-item>
         <el-form-item label="证书密码" :label-width="formLabelWidth">
-          <el-input v-model="form.certificate_password" autocomplete="off"></el-input>
+          <el-input v-model="form.certificate_password" ></el-input>
         </el-form-item>
         <!-- <el-form-item label="横竖屏" :label-width="formLabelWidth">
             <el-radio v-model="form.screen" label="0">横屏</el-radio>
             <el-radio v-model="form.screen" label="1">竖屏</el-radio>
         </el-form-item>
         <el-form-item label="应用描述" :label-width="formLabelWidth">
-          <el-input v-model="form.txt" autocomplete="off"></el-input>
+          <el-input v-model="form.txt" ></el-input>
         </el-form-item> -->
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -43,13 +43,13 @@
     <el-dialog title="编辑数据" :visible.sync="changeDataFormVisible">
       <el-form :model="form">
          <el-form-item label="别名" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.alias" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.alias" ></el-input>
         </el-form-item>
         <el-form-item label="别名密码" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.alias_password" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.alias_password" ></el-input>
         </el-form-item>
         <el-form-item label="证书密码" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.certificate_password" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.certificate_password" ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

@@ -15,10 +15,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="版本名称" :label-width="formLabelWidth">
-          <el-input v-model="form.version_name" autocomplete="off"></el-input>
+          <el-input v-model="form.version_name" ></el-input>
         </el-form-item>
         <el-form-item label="上传apk" :label-width="formLabelWidth">
-          <!-- <el-input v-model="form.version_note" autocomplete="off"></el-input> -->
+          <!-- <el-input v-model="form.version_note" ></el-input> -->
             <el-upload
                 class="upload-demo"
                 action="https://jsonplaceholder.typicode.com/posts/"
@@ -34,13 +34,13 @@
             </el-upload>
         </el-form-item>
         <el-form-item label="版本号" :label-width="formLabelWidth">
-          <el-input v-model="form.version_number" autocomplete="off"></el-input>
+          <el-input v-model="form.version_number" ></el-input>
         </el-form-item>
         <el-form-item label="母包包名" :label-width="formLabelWidth">
-          <el-input v-model="form.mother_name" autocomplete="off"></el-input>
+          <el-input v-model="form.mother_name" ></el-input>
         </el-form-item>
         <el-form-item label="版本备注" :label-width="formLabelWidth">
-          <el-input v-model="form.version_note" autocomplete="off"></el-input>
+          <el-input v-model="form.version_note" ></el-input>
         </el-form-item>
         <el-form-item label="母包类型" :label-width="formLabelWidth">
             <el-radio v-model="form.mother_type" label="0">android</el-radio>
@@ -56,16 +56,16 @@
     <el-dialog title="编辑数据" :visible.sync="changeDataFormVisible">
       <el-form :model="form">
         <el-form-item label="版本名称" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.version_name" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.version_name" ></el-input>
         </el-form-item>
         <el-form-item label="版本号" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.version_number" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.version_number" ></el-input>
         </el-form-item>
         <!-- <el-form-item label="母包包名" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.mother_name" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.mother_name" ></el-input>
         </el-form-item> -->
         <el-form-item label="版本备注" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.version_note" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.version_note" ></el-input>
         </el-form-item>
         <el-form-item label="母包类型" :label-width="formLabelWidth">
             <el-radio v-model="changeInfo.mother_type" label="0">android</el-radio>

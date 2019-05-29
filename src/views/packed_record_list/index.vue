@@ -1,32 +1,30 @@
 <template>
   <div class="app-container">
-    <div style="marginBottom:20px">
-      <el-button  type="info" plain  @click="dialogFormVisible = true">
-        <i class="el-icon-plus" />添加
-      </el-button>
+    <div style="marginBottom:20px;display: flex;justify-content: start;">
+        <section>
+            <span>游戏名称</span>
+             <el-select v-model="appValue" placeholder="请选择应用">
+                <el-option v-for="(item,index) in appArr" :key="index" 
+                :label="item.label"  :value="item.value"></el-option>
+            </el-select>
+        </section>
+        <section  style="margin:0 20px">
+            <span>游戏包名称</span>
+             <el-select v-model="appValue" placeholder="请选择应用">
+                <el-option v-for="(item,index) in appArr" :key="index" 
+                :label="item.label"  :value="item.value"></el-option>
+            </el-select>
+        </section>
+        <el-button  type="info" plain  @click="searchData">
+            <i class="el-icon-search" />查询
+        </el-button>
+        <el-button  type="info" plain  @click="download(true)">
+            <i class="el-icon-download" />内网下载
+        </el-button>
+        <el-button  type="info" plain  @click="download(false)">
+            <i class="el-icon-download" />外网下载
+        </el-button>
     </div>
-    <!-- 添加数据弹出框 -->
-    <el-dialog title="添加应用" :visible.sync="dialogFormVisible" @close = "cancel">
-      <el-form :model="form">
-        <el-form-item label="应用名称" :label-width="formLabelWidth">
-          <el-select v-model="appValue" placeholder="请选择应用">
-            <el-option v-for="(item,index) in appArr" :key="index" 
-            :label="item.label"  :value="item.value"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="横竖屏" :label-width="formLabelWidth">
-            <el-radio v-model="form.screen" label="0">横屏</el-radio>
-            <el-radio v-model="form.screen" label="1">竖屏</el-radio>
-        </el-form-item>
-        <el-form-item label="应用描述" :label-width="formLabelWidth">
-          <el-input v-model="form.txt" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary" @click="addData">确 定</el-button>
-      </div>
-    </el-dialog>
     <!-- 编辑数据弹出框 -->
     <el-dialog title="编辑数据" :visible.sync="changeDataFormVisible">
       <el-form :model="form">
@@ -35,7 +33,7 @@
             <el-radio v-model="changeInfo.screen" label="1">竖屏</el-radio>
         </el-form-item>
         <el-form-item label="应用描述" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.txt" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.txt" ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -91,17 +89,17 @@
           {{ scope.row.txt }}
         </template>
       </el-table-column>
-      <el-table-column label="应用时间" width="160" align="center">
+      <el-table-column label="打包时间" width="160" align="center">
         <template slot-scope="scope">
           {{ scope.row.display_time }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="220" align="center">
+      <!-- <el-table-column label="操作" width="220" align="center">
         <template slot-scope="scope">
           <el-button type="primary" plain @click="startChange(scope.$index, scope.row)">编辑</el-button>
           <el-button type="danger" plain @click="deleteData(scope.$index, scope.row)">删除</el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       
     </el-table>
   </div>
@@ -126,7 +124,6 @@ export default {
       list: null,
       listLoading: true,
       // 
-      dialogFormVisible: false,
       changeDataFormVisible: false,
       appArr: [{
           value: '0',
@@ -172,13 +169,18 @@ export default {
       this.dialogFormVisible = false;
       this.form.txt = null;
     },
-    // 添加数据
-    addData(){
-        
-        this.list.push({title:this.appArr[this.appValue].label,screen:this.form.screen,txt:this.form.txt})
-        Vue.prototype.$message({message: '添加成功',type: 'success', duration: 1500})
-        this.dialogFormVisible = false
-        this.form.txt = '';
+    //下载包
+    download(flag){
+        if (flag) {
+            Vue.prototype.$message({message: '开始内网下载',type: 'success', duration: 1500})
+        }else{
+            Vue.prototype.$message({message: '开始外网下载',type: 'success', duration: 1500})
+        }
+    },
+    // 查询数据
+    searchData(){
+        this.fetchData()
+        Vue.prototype.$message({message: '查询成功',type: 'success', duration: 1500})
     },
     // 编辑数据
     changeData(){

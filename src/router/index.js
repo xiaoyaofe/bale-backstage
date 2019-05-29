@@ -48,37 +48,37 @@ export const constantRouterMap = [
       {
         path: 'game_list',
         name: 'game',
-        component: () => import('@/views/game/index'),
-        meta: { title: '应用列表', icon: 'table' }
+        component: () => import('@/views/game_list/index'),
+        meta: { title: '应用列表', icon: 'table',affix: true}
       },
       {
         path: 'mother_package_list',
         name: 'mother',
-        component: () => import('@/views/mother/index'),
-        meta: { title: '游戏母包列表', icon: 'table' }
+        component: () => import('@/views/mother_package_list/index'),
+        meta: { title: '游戏母包列表', icon: 'table', }
       },
       {
         path: 'certificate_list',
         name: 'certificate',
-        component: () => import('@/views/certificate/index'),
+        component: () => import('@/views/certificate_list/index'),
         meta: { title: '证书列表', icon: 'table' }
       },
       {
         path: 'channel_package_list',
         name: 'channel',
-        component: () => import('@/views/channel/index'),
+        component: () => import('@/views/channel_package_list/index'),
         meta: { title: '渠道包列表', icon: 'table' },
       },
       {
         path: 'packing_list',
         name: 'packing',
-        component: () => import('@/views/packing/index'),
+        component: () => import('@/views/packing_list/index'),
         meta: { title: '打包列表', icon: 'table' }
       },
       {
         path: 'packed_record_list',
         name: 'packed',
-        component: () => import('@/views/packing_record/index'),
+        component: () => import('@/views/packed_record_list/index'),
         meta: { title: '打包记录列表', icon: 'table' }
       },
     ]

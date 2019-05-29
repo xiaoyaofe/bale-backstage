@@ -65,7 +65,7 @@
             <el-radio v-model="changeInfo.screen" label="1">竖屏</el-radio>
         </el-form-item>
         <el-form-item label="应用描述" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.txt" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.txt" ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

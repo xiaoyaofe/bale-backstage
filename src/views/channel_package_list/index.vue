@@ -94,57 +94,57 @@
           <el-radio v-model="changeInfo.debugging" label="1">调试</el-radio>
         </el-form-item>
         <el-form-item label="游戏包名" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.packed_name" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.packed_name" ></el-input>
         </el-form-item>
         <el-form-item label="游戏横竖屏" :label-width="formLabelWidth">
             <el-radio v-model="changeInfo.screen" label="0">横屏</el-radio>
             <el-radio v-model="changeInfo.screen" label="1">竖屏</el-radio>
         </el-form-item>
         <el-form-item label="grena的APPID" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.grena_appId" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.grena_appId" ></el-input>
         </el-form-item>
         <el-form-item label="grena的APPKEY" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.grena_appKey" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.grena_appKey" ></el-input>
         </el-form-item>
         <el-form-item label="grena的支付KEY" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.grena_pay_key" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.grena_pay_key" ></el-input>
         </el-form-item>
         <el-form-item label="grena服务端推送KEY" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.grena_serve_key" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.grena_serve_key" ></el-input>
         </el-form-item>
         <el-form-item label="沙盒模式" :label-width="formLabelWidth">
            <el-radio v-model="changeInfo.sandbox" label="0">非沙盒</el-radio>
           <el-radio v-model="changeInfo.sandbox" label="1">沙盒</el-radio>
         </el-form-item>
         <el-form-item label="grena客户端推送KEY" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.grena_client_key" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.grena_client_key" ></el-input>
         </el-form-item>
         <el-form-item label="语种" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.language" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.language" ></el-input>
         </el-form-item>
         <el-form-item label="国家代码" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.country" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.country" ></el-input>
         </el-form-item>
         <el-form-item label="grena的sourceld" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.grena_sourceId" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.grena_sourceId" ></el-input>
         </el-form-item>
         <el-form-item label="grena的元数据APPID(同grean的APPID)" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.grena_metadata_appId" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.grena_metadata_appId" ></el-input>
         </el-form-item>
         <el-form-item label="facebook的ID" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.fbId" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.fbId" ></el-input>
         </el-form-item>
         <el-form-item label="游戏的versionCode" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.game_version_code" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.game_version_code" ></el-input>
         </el-form-item>
         <el-form-item label="游戏的versionName" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.game_version_name" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.game_version_name" ></el-input>
         </el-form-item>
         <el-form-item label="facebookID元数据(和fb保持一致)" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.fb_metadata_id" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.fb_metadata_id" ></el-input>
         </el-form-item>
         <el-form-item label="appflye的channel" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.appflye_channel" autocomplete="off"></el-input>
+          <el-input v-model="changeInfo.appflye_channel" ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
