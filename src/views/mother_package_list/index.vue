@@ -1,297 +1,259 @@
 <template>
   <div class="app-container">
     <div style="marginBottom:20px">
-      <el-button  type="info" plain  @click="dialogFormVisible = true">
-        <i class="el-icon-plus" />添加
+      <el-button type="info" plain @click="dialogFormVisible = true">
+        <i class="el-icon-plus"/>添加
       </el-button>
     </div>
     <!-- 添加数据弹出框 -->
     <el-dialog title="添加游戏母包" :visible.sync="dialogFormVisible" @close="cancel">
-      <el-form :model="form">
+      <el-form>
         <el-form-item label="应用名称" :label-width="formLabelWidth">
-          <el-select v-model="appValue" placeholder="请选择应用">
-            <el-option v-for="(item,index) in appArr" :key="index" 
-            :label="item.label"  :value="item.value"></el-option>
+          <el-select v-model="appNameEnIndex" filterable placeholder="请选择应用">
+            <el-option
+              v-for="(item,index) in _state.game_list.tableData.data"
+              :key="index"
+              :label="item.appNameZn"
+              :value="index"
+              :disabled="!item.appNameEn"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="版本名称" :label-width="formLabelWidth">
-          <el-input v-model="form.version_name" ></el-input>
+          <el-input v-model="addMotherPackageData.versionName"></el-input>
         </el-form-item>
         <el-form-item label="上传apk" :label-width="formLabelWidth">
-          <!-- <el-input v-model="form.version_note" ></el-input> -->
-            <el-upload
-                class="upload-demo"
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :before-remove="beforeRemove"
-                multiple
-                :limit="1"
-                :on-exceed="handleExceed">
-                <!-- :file-list="fileList" -->
-                <el-button size="small" type="primary">点击上传</el-button>
-                <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
-            </el-upload>
+          <el-upload
+            class="upload-demo"
+            ref="upload"
+            action="http://172.16.10.106:8080/basePackage/add"
+            :data="addMotherPackageData"
+            :on-success="uploadSuccess"
+            :file-list="fileList"
+            :auto-upload="false"
+          >
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+          </el-upload>
         </el-form-item>
         <el-form-item label="版本号" :label-width="formLabelWidth">
-          <el-input v-model="form.version_number" ></el-input>
+          <el-input v-model="addMotherPackageData.versionCode"></el-input>
         </el-form-item>
         <el-form-item label="母包包名" :label-width="formLabelWidth">
-          <el-input v-model="form.mother_name" ></el-input>
+          <el-input v-model="addMotherPackageData.packageName"></el-input>
         </el-form-item>
-        <el-form-item label="版本备注" :label-width="formLabelWidth">
-          <el-input v-model="form.version_note" ></el-input>
+        <el-form-item label="版本描述" :label-width="formLabelWidth">
+          <el-input v-model="addMotherPackageData.versionDesc"></el-input>
         </el-form-item>
         <el-form-item label="母包类型" :label-width="formLabelWidth">
-            <el-radio v-model="form.mother_type" label="0">android</el-radio>
-            <el-radio v-model="form.mother_type" label="1">ios</el-radio>
+          <el-radio v-model="packageType" label="0">ios</el-radio>
+          <el-radio v-model="packageType" label="1">android</el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary" @click="addData">确 定</el-button>
+        <el-button type="primary" @click="determineAddData">确 定</el-button>
       </div>
     </el-dialog>
     <!-- 编辑数据弹出框 -->
     <el-dialog title="编辑数据" :visible.sync="changeDataFormVisible">
-      <el-form :model="form">
+      <el-form>
         <el-form-item label="版本名称" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.version_name" ></el-input>
+          <el-input v-model="changeInfo.versionName"></el-input>
         </el-form-item>
         <el-form-item label="版本号" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.version_number" ></el-input>
+          <el-input v-model="changeInfo.versionCode"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="母包包名" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.mother_name" ></el-input>
-        </el-form-item> -->
         <el-form-item label="版本备注" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.version_note" ></el-input>
+          <el-input v-model="changeInfo.versionDesc"></el-input>
         </el-form-item>
         <el-form-item label="母包类型" :label-width="formLabelWidth">
-            <el-radio v-model="changeInfo.mother_type" label="0">android</el-radio>
-            <el-radio v-model="changeInfo.mother_type" label="1">ios</el-radio>
+          <el-radio v-model="changeInfo.packageType" label="0">ios</el-radio>
+          <el-radio v-model="changeInfo.packageType" label="1">android</el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="changeDataFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="changeData">确 定</el-button>
+        <el-button type="primary" @click="determineChangeData">确 定</el-button>
       </div>
     </el-dialog>
     <!-- table -->
     <el-table
       v-loading="listLoading"
-      :data="list"
+      :data="$store.state.mother_package_list.tableData.data"
       element-loading-text="Loading"
       border
       fit
-      highlight-current-row>
-      <el-table-column align="center" label=" " width="40">
-        <template slot-scope="scope">
-          {{ scope.$index+1 }}
-        </template>
-      </el-table-column>
-      <el-table-column label="主键ID" width="90">
-        <template slot-scope="scope">
-          {{ scope.row.id }}
-        </template>
-      </el-table-column>
-      <el-table-column label="应用ID" width="110" align="center">
-        <template slot-scope="scope">
-          {{ scope.row.appId }}
-        </template>
-      </el-table-column>
-      <el-table-column label="版本名称" width="180" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.version_name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="版本号" width="150" align="center">
-        <template slot-scope="scope">
-          {{ scope.row.version_number }}
-        </template>
-      </el-table-column>
-      <el-table-column label="版本备注" width="200" align="center">
-        <template slot-scope="scope">
-          {{ scope.row.version_note }}
-        </template>
-      </el-table-column>
-      <el-table-column label="母包名称" width="200" align="center">
-        <template slot-scope="scope">
-          {{ scope.row.mother_name }}
-        </template>
-      </el-table-column>
-      <el-table-column label="母包类型" width="200" align="center">
-        <template slot-scope="scope">
-          {{ +scope.row.mother_type ? "ios":"android" }}
-        </template>
-      </el-table-column>
-      <el-table-column label="apk更新时间" width="250" align="center">
-        <template slot-scope="scope">
-          {{ scope.row.display_time }}
-        </template>
-      </el-table-column>
+      highlight-current-row
+    >
+      <el-table-column
+        v-for="(item, i) in (Object.keys(tableData[0]?tableData[0]:{}))"
+        :key="i"
+        :sortable="i==0||i==1"
+        :prop="item"
+        :label="tableHead[i]"
+        :width="getWidth(i)"
+        :formatter="formatterData"
+      ></el-table-column>
       <el-table-column label="操作" width="220" align="center">
         <template slot-scope="scope">
           <el-button type="primary" plain @click="startChange(scope.$index, scope.row)">编辑</el-button>
           <el-button type="danger" plain @click="deleteData(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
-      
     </el-table>
   </div>
 </template>
 
 <script>
-import { getList } from '@/api/mother'
 import Vue from 'vue'
 export default {
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'gray',
-        deleted: 'danger'
-      }
-      return statusMap[status]
-    }
-  },
   data() {
     return {
-      list: null,
-      listLoading: true,
-      // 
-      dialogFormVisible: false,
-      changeDataFormVisible: false,
-      appArr: [{
-          value: '0',
-          label: '全名助攻'
-        }, {
-          value: '1',
-          label: '神将三国'
-        }, {
-          value: '2',
-          label: '港台VS'
-        }, {
-          value: "3",
-          label: '超级英雄'
-        }, {
-          value: '4',
-          label: '全球超英'
-        }],
-      appValue:"0",
-      form: {
-          version_name:null,
-          version_number:null,
-        //   mother_name:null,
-          version_note:null,
-          mother_type:"0",
+      fileList: [],                 //上传列表存储
+      tableData: [],                //表格数据
+      packageType: '0',             //母包类型
+      appNameEnIndex: '',            //app应用下标
+      listLoading: true,            //表格loading变量
+      formLabelWidth: '120px',      //表单长度变量
+      dialogFormVisible: false,     //添加框显示/隐藏变量
+      changeDataFormVisible: false, //编辑框显示/隐藏变量
+      changeInfo: {                 //编辑框数据体
+        versionName: null,
+        versionCode: null,
+        versionDesc: null,
+        packageType: '0',
+        index: null,
       },
-      changeInfo:{
-          version_name:null,
-          version_number:null,
-        //   mother_name:null,
-          version_note:null,
-          mother_type:'0',
-          index:null,
+      addMotherPackageData: {       //添加框数据体
+        appId: 0,
+        appNameEn: ' ',
+        versionName: '',
+        versionCode: '',
+        versionDesc: '',
+        packageName: '',
       },
-      formLabelWidth: '120px',
+      tableHead: ['主键ID', '应用Id', '版本名称', '版本号', '版本备注', '母包名称', '母包类型', '存储目录', '上传时间'],//表头修饰
     }
   },
   created() {
-    this.fetchData()
+    // 初始化获取应用列表
+    this.$store.dispatch('getGameList').then((data) => {
+      this.$store.dispatch('getMasterPackageList').then((data) => {
+        this.listLoading = false
+      })
+    })
   },
-  watch:{
-    arrValue(newValue,oldValue){
-      console.log(newValue)
+  computed: {
+    // 应用列表
+    _state() {
+      if (this.$store.state.mother_package_list.tableData.data) {
+        this.tableData = [...this.$store.state.mother_package_list.tableData.data]
+      }
+      return this.$store.state
     }
   },
   methods: {
-    // 取消
-    cancel(){
-        this.dialogFormVisible = false
-        // 初始化添加表单
-        Object.keys(this.form).forEach((key, index) => {
-            if (key == "mother_type") {
-                this.form[key]  = "0"
-            }else{
-                this.form[key] = null
-            }
-        })
-    },
-    // 添加数据
-    addData(){
-        if (!this.form.version_name || !this.form.version_number ) {
-            Vue.prototype.$message({message: '添加失败',type: 'error', duration: 1500})
-            return
+    // 添加框取消按钮触发
+    cancel() {
+      // 初始化添加表单
+      this.dialogFormVisible = false
+      this.packageType = '0';
+      this.appNameEnIndex = '';
+      Object.keys(this.addMotherPackageData).forEach((key, index) => {
+        if (key == "appId") {
+          this.addMotherPackageData[key] = 0;
+        } else {
+          this.addMotherPackageData[key] = '';
         }
-        this.list.push({
-            version_name:this.form.version_name,
-            mother_type:this.form.mother_type,
-            // mother_name:this.form.mother_name,
-            version_number:this.form.version_number,
-            version_note:this.form.version_note})
-        Vue.prototype.$message({message: '添加成功',type: 'success', duration: 1500})
-        this.dialogFormVisible = false
-        // 初始化添加表单
-        Object.keys(this.form).forEach((key, index) => {
-            if (key == "mother_type") {
-                this.form[key]  = "0"
-            }else{
-                this.form[key] = null
-            }
+      })
+    },
+    // 添加框确定按钮触发
+    determineAddData() {
+      if (this.appNameEnIndex === '') {
+        return Vue.prototype.$message({ message: '请选中应用', type: 'warning', duration: 1500 })
+      }
+      this.addMotherPackageData.packageType = this.packageType;
+      this.addMotherPackageData.appId = this._state.game_list.tableData.data[this.appNameEnIndex].appId;
+      this.addMotherPackageData.appNameEn = this._state.game_list.tableData.data[this.appNameEnIndex].appNameEn;
+      for (var key in this.addMotherPackageData) {
+        if (this.addMotherPackageData[key] === '') {
+          return Vue.prototype.$message({ message: '添加失败,请选中上传文件', type: 'warning', duration: 1500 })
+        }
+      }
+      this.$refs.upload.submit();
+    },
+    // 编辑框确定按钮触发
+    determineChangeData() {
+      var params = {
+        id: this.tableData[this.changeInfo.index].id,
+        appId: this.tableData[this.changeInfo.index].appId,
+        packageName: this.tableData[this.changeInfo.index].packageName,
+        versionName: this.changeInfo.versionName,
+        versionCode: this.changeInfo.versionCode,
+        versionDesc: this.changeInfo.versionDesc,
+        packageType: this.changeInfo.packageType,
+      }
+      this.$store.dispatch('changeMasterPackageInfo', params).then((data) => {
+        Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
+        this.changeDataFormVisible = false;
+        Object.keys(this.changeInfo).forEach((item) => {
+          if (item === "appId") {
+            this.changeInfo.item = 0
+          }
+          this.changeInfo.item = null
         })
+      })
     },
-    // 编辑数据
-    changeData(){
-        this.list[this.changeInfo.index].version_name = this.changeInfo.version_name;
-        this.list[this.changeInfo.index].version_number = this.changeInfo.version_number;
-        // this.list[this.changeInfo.index].mother_name = this.changeInfo.mother_name;
-        this.list[this.changeInfo.index].version_note = this.changeInfo.version_note;
-        this.list[this.changeInfo.index].mother_type = this.changeInfo.mother_type;
-        Vue.prototype.$message({message: '添加成功',type: 'success', duration: 1500})
-        this.changeDataFormVisible = false
-    },
-    // 编辑数据下标
-    startChange(index,row){
-      this.changeInfo.version_name = this.list[index].version_name;
-      this.changeInfo.version_number = this.list[index].version_number;
-    //   this.changeInfo.mother_name = this.list[index].mother_name;
-      this.changeInfo.version_note = this.list[index].version_note;
-      this.changeInfo.mother_type = ''+(+this.list[index].mother_type);
+    // 编辑按钮触发
+    startChange(index, row) {
+      this.changeInfo.versionName = this.tableData[index].versionName;
+      this.changeInfo.versionCode = this.tableData[index].versionCode;
+      this.changeInfo.versionDesc = this.tableData[index].versionDesc;
+      this.changeInfo.packageType = ('' + this.tableData[index].packageType);
       this.changeInfo.index = index;
       this.changeDataFormVisible = true;
     },
-    // 删除数据
-    deleteData(index,row){
-      this.list.splice(index,1)
-      Vue.prototype.$message({message: '删除成功',type: 'success', duration: 1500})
-    },
-    // 获取数据
-    fetchData() {
-      this.listLoading = true
-      getList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.listLoading = false
+    // 删除按钮触发
+    deleteData(index, row) {
+      var params = {
+        id: this.tableData[index].id,
+        filePath: this.tableData[index].filePath,
+      }
+      this.$store.dispatch('delMasterPackageList', params).then((data) => {
+        return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
       })
     },
-    // 上传
-    handleRemove(file, fileList) {
-        console.log(file, fileList);
-      },
-    handlePreview(file) {
-        console.log(file);
+    // 格式化母包类型
+    formatterData(row, column, cellValue, index) {
+      var { label } = column
+      if (label === '母包类型') {
+        return cellValue ? 'android' : 'ios'
+      }
+      return cellValue
     },
-    handleExceed(files, fileList) {
-        this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+    // 设置表格列宽
+    getWidth(i) {
+      var arr = [90, 90, 140, 120, 140, 160, 160, , 160]
+      return arr[i]
     },
-    beforeRemove(file, fileList) {
-        return this.$confirm(`确定移除 ${ file.name }？`);
+    // 文件上传成功的钩子函数
+    uploadSuccess(response, file, fileList) {
+      this.packageType = '0';
+      this.appNameEnIndex = '';
+      Object.keys(this.addMotherPackageData).forEach((key, index) => {
+        if (key == "appId") {
+          this.addMotherPackageData[key] = 0;
+        } else {
+          this.addMotherPackageData[key] = '';
+        }
+      })
+      this.$store.commit('SET_MOTHER_TABLE_DATA', response.data)
+      this.dialogFormVisible = false
+      return Vue.prototype.$message({ message: '添加成功', type: 'success', duration: 1500 })
     }
   }
 }
 </script>
 <style lang="scss" scoped>
-
-
 </style>
 

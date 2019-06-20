@@ -80,7 +80,9 @@ const user = {
         removeToken()
         resolve()
       })
-    }
+    },
+
+    // 
   }
 }
 

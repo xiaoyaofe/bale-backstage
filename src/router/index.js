@@ -65,9 +65,21 @@ export const constantRouterMap = [
       },
       {
         path: 'channel_package_list',
-        name: 'channel',
+        name: 'channel_package',
         component: () => import('@/views/channel_package_list/index'),
         meta: { title: '渠道包列表', icon: 'table' },
+      },
+      {
+        path: 'channel_package_configuration',
+        name: 'channel_package_configuration',
+        component: () => import('@/views/channel_package_configuration/index'),
+        meta: { title: '渠道包配置', icon: 'table' },
+      },
+      {
+        path: 'configuration_template',
+        name: 'configuration_template',
+        component: () => import('@/views/configuration_template/index'),
+        meta: { title: '渠道包配置模板', icon: 'table' },
       },
       {
         path: 'packing_list',

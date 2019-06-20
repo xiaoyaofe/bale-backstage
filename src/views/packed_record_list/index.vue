@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import { getList } from '@/api/table'
+// import { getList } from '@/api/table'
 import Vue from 'vue'
 export default {
   filters: {
@@ -156,7 +156,7 @@ export default {
     }
   },
   created() {
-    this.fetchData()
+    // this.fetchData()
   },
   watch:{
     arrValue(newValue,oldValue){
@@ -179,8 +179,8 @@ export default {
     },
     // 查询数据
     searchData(){
-        this.fetchData()
-        Vue.prototype.$message({message: '查询成功',type: 'success', duration: 1500})
+        // this.fetchData()
+        // Vue.prototype.$message({message: '查询成功',type: 'success', duration: 1500})
     },
     // 编辑数据
     changeData(){
@@ -204,10 +204,10 @@ export default {
     // 获取数据
     fetchData() {
       this.listLoading = true
-      getList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.listLoading = false
-      })
+      // getList(this.listQuery).then(response => {
+      //   this.list = response.data.items
+      //   this.listLoading = false
+      // })
     }
   }
 }

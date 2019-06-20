@@ -15,7 +15,7 @@ export default {
         baleId:'@integer(60, 90)',
         bale_time:'@datetime',
         system_type:'@boolean()',
-
+        appName: '@sentence(1,3)',
         title: '@sentence(1,3)',
         'status|1': ['success', 'fail', 'processing'],
         author: 'name',
