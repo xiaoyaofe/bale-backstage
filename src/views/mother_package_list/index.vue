@@ -26,7 +26,7 @@
           <el-upload
             class="upload-demo"
             ref="upload"
-            action="http://172.16.10.106:8080/basePackage/add"
+            :action="domain+'/basePackage/add'"
             :data="addMotherPackageData"
             :on-success="uploadSuccess"
             :file-list="fileList"
@@ -39,14 +39,14 @@
           <el-input v-model="addMotherPackageData.versionCode"></el-input>
         </el-form-item>
         <el-form-item label="母包包名" :label-width="formLabelWidth">
-          <el-input v-model="addMotherPackageData.packageName"></el-input>
+          <el-input v-model="addMotherPackageData.basePackageName"></el-input>
         </el-form-item>
         <el-form-item label="版本描述" :label-width="formLabelWidth">
           <el-input v-model="addMotherPackageData.versionDesc"></el-input>
         </el-form-item>
         <el-form-item label="母包类型" :label-width="formLabelWidth">
-          <el-radio v-model="packageType" label="0">ios</el-radio>
-          <el-radio v-model="packageType" label="1">android</el-radio>
+          <el-radio v-model="basePackageType" label="0">ios</el-radio>
+          <el-radio v-model="basePackageType" label="1">android</el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -67,8 +67,8 @@
           <el-input v-model="changeInfo.versionDesc"></el-input>
         </el-form-item>
         <el-form-item label="母包类型" :label-width="formLabelWidth">
-          <el-radio v-model="changeInfo.packageType" label="0">ios</el-radio>
-          <el-radio v-model="changeInfo.packageType" label="1">android</el-radio>
+          <el-radio v-model="changeInfo.basePackageType" label="0">ios</el-radio>
+          <el-radio v-model="changeInfo.basePackageType" label="1">android</el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -109,9 +109,10 @@ import Vue from 'vue'
 export default {
   data() {
     return {
+      domain:process.env.BASE_API,
       fileList: [],                 //上传列表存储
       tableData: [],                //表格数据
-      packageType: '0',             //母包类型
+      basePackageType: '0',             //母包类型
       appNameEnIndex: '',            //app应用下标
       listLoading: true,            //表格loading变量
       formLabelWidth: '120px',      //表单长度变量
@@ -121,7 +122,7 @@ export default {
         versionName: null,
         versionCode: null,
         versionDesc: null,
-        packageType: '0',
+        basePackageType: '0',
         index: null,
       },
       addMotherPackageData: {       //添加框数据体
@@ -130,7 +131,7 @@ export default {
         versionName: '',
         versionCode: '',
         versionDesc: '',
-        packageName: '',
+        basePackageName: '',
       },
       tableHead: ['主键ID', '应用Id', '版本名称', '版本号', '版本备注', '母包名称', '母包类型', '存储目录', '上传时间'],//表头修饰
     }
@@ -157,7 +158,7 @@ export default {
     cancel() {
       // 初始化添加表单
       this.dialogFormVisible = false
-      this.packageType = '0';
+      this.basePackageType = '0';
       this.appNameEnIndex = '';
       Object.keys(this.addMotherPackageData).forEach((key, index) => {
         if (key == "appId") {
@@ -172,7 +173,7 @@ export default {
       if (this.appNameEnIndex === '') {
         return Vue.prototype.$message({ message: '请选中应用', type: 'warning', duration: 1500 })
       }
-      this.addMotherPackageData.packageType = this.packageType;
+      this.addMotherPackageData.basePackageType = this.basePackageType;
       this.addMotherPackageData.appId = this._state.game_list.tableData.data[this.appNameEnIndex].appId;
       this.addMotherPackageData.appNameEn = this._state.game_list.tableData.data[this.appNameEnIndex].appNameEn;
       for (var key in this.addMotherPackageData) {
@@ -185,13 +186,13 @@ export default {
     // 编辑框确定按钮触发
     determineChangeData() {
       var params = {
-        id: this.tableData[this.changeInfo.index].id,
+        basePackageName: this.tableData[this.changeInfo.index].basePackageName,
+        basePackageId: this.tableData[this.changeInfo.index].basePackageId,
         appId: this.tableData[this.changeInfo.index].appId,
-        packageName: this.tableData[this.changeInfo.index].packageName,
+        basePackageType: this.changeInfo.basePackageType,
         versionName: this.changeInfo.versionName,
         versionCode: this.changeInfo.versionCode,
         versionDesc: this.changeInfo.versionDesc,
-        packageType: this.changeInfo.packageType,
       }
       this.$store.dispatch('changeMasterPackageInfo', params).then((data) => {
         Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
@@ -206,22 +207,36 @@ export default {
     },
     // 编辑按钮触发
     startChange(index, row) {
+      console.log(111,this.tableData[index]);
+      
       this.changeInfo.versionName = this.tableData[index].versionName;
       this.changeInfo.versionCode = this.tableData[index].versionCode;
       this.changeInfo.versionDesc = this.tableData[index].versionDesc;
-      this.changeInfo.packageType = ('' + this.tableData[index].packageType);
+      this.changeInfo.basePackageType = ('' + this.tableData[index].basePackageType);
       this.changeInfo.index = index;
       this.changeDataFormVisible = true;
     },
     // 删除按钮触发
     deleteData(index, row) {
-      var params = {
-        id: this.tableData[index].id,
-        filePath: this.tableData[index].filePath,
-      }
-      this.$store.dispatch('delMasterPackageList', params).then((data) => {
-        return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
-      })
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var params = {
+          basePackageId: this.tableData[index].basePackageId,
+          filePath: this.tableData[index].filePath,
+        }
+        this.$store.dispatch('delMasterPackageList', params).then((data) => {
+        Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+      // 
     },
     // 格式化母包类型
     formatterData(row, column, cellValue, index) {
@@ -238,7 +253,7 @@ export default {
     },
     // 文件上传成功的钩子函数
     uploadSuccess(response, file, fileList) {
-      this.packageType = '0';
+      this.basePackageType = '0';
       this.appNameEnIndex = '';
       Object.keys(this.addMotherPackageData).forEach((key, index) => {
         if (key == "appId") {

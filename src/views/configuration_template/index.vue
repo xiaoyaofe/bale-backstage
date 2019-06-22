@@ -56,7 +56,7 @@
         <el-form-item label="配置参数key值" :label-width="formLabelWidth">
           <el-input v-model="changeInfo.configKey"></el-input>
         </el-form-item>
-       <el-form-item label="配置参数类型" :label-width="formLabelWidth">
+        <el-form-item label="配置参数类型" :label-width="formLabelWidth">
           <el-radio v-model="changeInfo.configType" label="0">string</el-radio>
           <el-radio v-model="changeInfo.configType" label="1">param</el-radio>
         </el-form-item>
@@ -113,11 +113,11 @@ export default {
       changeDataDialog: false,//修改对话框显示/隐藏变量
       formLabelWidth: '120px',//表单长度
       changeInfo: {           //修改参数数据体
-        templateId:'',
-        templateName:'',
+        configId: '',
+        templateName: '',
         configName: "",
-        configKey:"",
-        configType:'',
+        configKey: "",
+        configType: '',
       },
       addConfigurationTemplate: {
         templateName: '',     //模板名称
@@ -130,7 +130,7 @@ export default {
   mounted() {
     // 初始化获取应用列表
     this.$store.dispatch('getConfigurationTemplate').then((data) => {
-      var params = { templateName: this.selectTemplateData[0]?this.selectTemplateData[0].templateName:'' }
+      var params = { templateName: this.selectTemplateData[0] ? this.selectTemplateData[0].templateName : '' }
       this.$store.dispatch('getTemplateDetails', params).then((data, params) => {
         this.listLoading = false
       })
@@ -176,7 +176,7 @@ export default {
           this.addDataDialog = false
           delete this.addConfigurationTemplate.configType
           for (let index = 0; index < this.selectTemplateData.length; index++) {
-            if(this.selectTemplateData[index].templateName === this.tableData[0].templateName){
+            if (this.selectTemplateData[index].templateName === this.tableData[0].templateName) {
               this.templateIndex = index;
             }
           }
@@ -188,23 +188,23 @@ export default {
     startChangeDialog(index, row) {
       this.changeInfo.configName = this.tableData[index].configName;
       this.changeInfo.templateName = this.tableData[index].templateName;
-      this.changeInfo.templateId = this.tableData[index].templateId;
+      this.changeInfo.configId = this.tableData[index].configId;
       this.changeInfo.configKey = this.tableData[index].configKey;
-      this.changeInfo.configType = this.tableData[index].configType == "string"?'0':'1';
+      this.changeInfo.configType = this.tableData[index].configType == "string" ? '0' : '1';
       this.changeDataDialog = true;
     },
     // 确定修改模板配置
     determineChangeData() {
-      this.changeInfo.configType = this.changeInfo.configType == '0'?"string":"param";
-      this.$store.dispatch('changeTemplateParams',this.changeInfo).then((data) => {
-          Vue.prototype.$message({ message: '修改成功', type: 'success', duration: 1500 })
-          this.changeDataDialog = false;
-          Object.keys(this.changeInfo).forEach((item)=>{
-            this.changeInfo.item = null
-          })
+      this.changeInfo.configType = this.changeInfo.configType == '0' ? "string" : "param";
+      this.$store.dispatch('changeTemplateParams', this.changeInfo).then((data) => {
+        Vue.prototype.$message({ message: '修改成功', type: 'success', duration: 1500 })
+        this.changeDataDialog = false;
+        Object.keys(this.changeInfo).forEach((item) => {
+          this.changeInfo.item = null
+        })
       })
     },
-     // 修改模板名
+    // 修改模板名
     changeTemplateName() {
       if (!this.newTemplateName) {
         return Vue.prototype.$message({ message: '请输入新的模板名称', type: 'warning', duration: 1500 })
@@ -219,13 +219,24 @@ export default {
     },
     // 删除模板配置数据
     deleteTemplateData(index, row) {
-      var params = {
-        templateName: this.tableData[index].templateName,
-        templateId: this.tableData[index].templateId
-      }
-      this.$store.dispatch('delConfigurationTemplateParams', params).then((data) => {
-        return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
-      })
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var params = {
+          templateName: this.tableData[index].templateName,
+          configId: this.tableData[index].configId
+        }
+        this.$store.dispatch('delConfigurationTemplateParams', params).then((data) => {
+          return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     },
     // 删除模板
     deleteTemplate() {
@@ -233,7 +244,7 @@ export default {
         templateName: this.selectTemplateData[this.templateIndex].templateName,
       }
       this.$store.dispatch('delConfigurationTemplate', params).then((data) => {
-        var params = { templateName: this.selectTemplateData[0]?this.selectTemplateData[0].templateName:'' }
+        var params = { templateName: this.selectTemplateData[0] ? this.selectTemplateData[0].templateName : '' }
         this.$store.dispatch('getTemplateDetails', params).then((data, params) => {
           this.listLoading = false;
           this.templateIndex = 0;
@@ -241,17 +252,15 @@ export default {
         return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
       })
     },
-   
+
     // 设置表格列宽
     getWidth(i) {
-      var arr = [100, , 150, 150, 150,200, 150]
+      var arr = [100, , 150, 150, 150, 200, 150]
       return arr[i]
     },
   }
 }
 </script>
 <style lang="scss" scoped>
-
-
 </style>
 

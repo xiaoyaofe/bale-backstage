@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="$route.query.index>=0&&packing_list.tableData.data">
     <!-- 添加应用英文名 -->
     <el-dialog title="当前应用没有英文名,请先添加应用英文名" :visible.sync="_state.addAppNameEnDialog">
       <el-form>
@@ -13,11 +13,10 @@
       </div>
     </el-dialog>
     <!-- 添加数据弹出框 -->
-    <el-dialog title="当前应用没有证书添加证书" :visible.sync="_state.dialogFormVisible" @close="cancelAddCertificate">
+    <el-dialog title="当前应用没有证书添加证书" :visible.sync="packing_list.dialogFormVisible" @close="cancelAddCertificate">
       <el-form>
-        
         <el-form-item label="应用名称" :label-width="formLabelWidth">
-          <el-input disabled v-model="diolagData.data.appNameZn"></el-input>
+          <el-input disabled :placeholder="packing_list.tableData.data[$route.query.index].appName"></el-input>
         </el-form-item><el-form-item label="证书名称" :label-width="formLabelWidth">
           <el-input v-model="addCertificateListData.certificateName"></el-input>
         </el-form-item>
@@ -49,96 +48,11 @@
         <el-button type="primary" @click="determineAddCertificate">确 定</el-button>
       </div>
     </el-dialog>
-     <!-- 添加打包任务弹出框 -->
-    <el-dialog title="添加打包任务" :visible.sync="$$state.addPackageDialog" @close="cancelAddPackage" width="450px">
-      <el-form>
-        <el-form-item label="应用名称" :label-width="formLabelWidth">
-          <el-select v-model="appNameEnIndex" filterable placeholder="请选择应用">
-            <el-option
-              v-for="(item,index) in _state.game_list.tableData.data"
-              :key="index"
-              :label="item.appNameZn"
-              :value="index"
-              :disabled="!item.appNameEn"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="母包" :label-width="formLabelWidth">
-          <el-select v-model="appNameEnIndex" filterable placeholder="请选择母包">
-            <el-option
-              v-for="(item,index) in _state.game_list.tableData.data"
-              :key="index"
-              :label="item.appNameZn"
-              :value="index"
-              :disabled="!item.appNameEn"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="sdk渠道包" :label-width="formLabelWidth">
-          <el-select v-model="appNameEnIndex" filterable placeholder="请选择渠道包">
-            <el-option
-              v-for="(item,index) in _state.game_list.tableData.data"
-              :key="index"
-              :label="item.appNameZn"
-              :value="index"
-              :disabled="!item.appNameEn"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelAddPackage">取 消</el-button>
-        <el-button type="primary" @click="determineAddPackage">确 定</el-button>
-      </div>
-    </el-dialog>
-     <!-- 删选打包任务弹出框 -->
-    <el-dialog title="筛选打包任务" :visible.sync="$$state.filterPackagingDialog" @close="cancelFilterPackage" width="450px">
-      <el-form>
-        <el-form-item label="应用名称" :label-width="formLabelWidth">
-          <el-select v-model="appNameEnIndex" filterable placeholder="请选择应用">
-            <el-option
-              v-for="(item,index) in _state.game_list.tableData.data"
-              :key="index"
-              :label="item.appNameZn"
-              :value="index"
-              :disabled="!item.appNameEn"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="母包" :label-width="formLabelWidth">
-          <el-select v-model="appNameEnIndex" filterable placeholder="请选择母包">
-            <el-option
-              v-for="(item,index) in _state.game_list.tableData.data"
-              :key="index"
-              :label="item.appNameZn"
-              :value="index"
-              :disabled="!item.appNameEn"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="sdk渠道包" :label-width="formLabelWidth">
-          <el-select v-model="appNameEnIndex" filterable placeholder="请选择渠道包">
-            <el-option
-              v-for="(item,index) in _state.game_list.tableData.data"
-              :key="index"
-              :label="item.appNameZn"
-              :value="index"
-              :disabled="!item.appNameEn"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelFilterPackage">取 消</el-button>
-        <el-button type="primary" @click="determineFilterPackage">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 <script>
 import Vue from 'vue'
 export default {
-  props: ['diolagData'],
   data() {
     return {
       appNameEn: null,
@@ -159,7 +73,7 @@ export default {
     _state() {
       return this.$store.state.channel_package_configuration
     },
-    $$state(){
+    packing_list(){
       return this.$store.state.packing_list
     }
   },
@@ -177,14 +91,15 @@ export default {
       console.log("确定__筛选打包任务");
       
     },
-    // 取消
+    // 取消上传证书
     cancelAddCertificate(){
-      this._state.dialogFormVisible = false;
+      this.packing_list.dialogFormVisible = false;
       Object.keys(this.addCertificateListData).forEach((key, index) => {this.addCertificateListData[key] = ''})
     },
+    // 确定上传证书
     determineAddCertificate(){
-      this.addCertificateListData.appId = this.diolagData.data.appId;
-      this.addCertificateListData.appNameEn = this.diolagData.data.appNameEn;
+      this.addCertificateListData.appId = this.packing_list.tableData.data[this.$route.query.index].appId;
+      this.addCertificateListData.appNameEn = this.packing_list.tableData.data[this.$route.query.index].appNameEn;
       for (var key in this.addCertificateListData) {
         if (this.addCertificateListData[key] === '') {
           return Vue.prototype.$message({ message: '添加失败,请将上传信息填写完整', type: 'warning', duration: 1500 })
@@ -195,7 +110,7 @@ export default {
     // 编辑框确定按钮触发
     determineAppNameEn() {
       var params = {
-        id: this.diolagData.id,
+        certificateId: this.packing_list.tableData.data[this.$route.query.index].certificateId,
         appNameEn: this.appNameEn,
         appDescribe: '',
       }
@@ -216,7 +131,7 @@ export default {
           this.addCertificateListData[key] = '';
         }
       })
-      this._state.dialogFormVisible = false
+      this.packing_list.dialogFormVisible = false;
       return Vue.prototype.$message({ message: '添加成功', type: 'success', duration: 1500 })
     },
   }

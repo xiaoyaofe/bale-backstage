@@ -19,10 +19,14 @@ const mother_package_list = {
   },
   actions: {
     // 获取母包列表
-    getMasterPackageList({ commit, state }) {
+    getMasterPackageList({ commit, state },params) {
       return new Promise((resolve, reject) => {
-        getMasterPackageList().then((data) => {
-          commit('SET_MOTHER_TABLE_DATA', data.data)
+        getMasterPackageList(params).then((data) => {
+          if (params) {
+            commit('SET_MOTHER_TABLE_DATA', data.data.data.filter(todo=>todo.appId===params))
+          }else{
+            commit('SET_MOTHER_TABLE_DATA', data.data)
+          }
           resolve()
         }).catch(error => {
           reject(error)

@@ -183,7 +183,7 @@ export default {
     changeData() {
       var params = {
         channelId: this.changeInfo.channelId,
-        id: this.tableData[this.changeInfo.index].id,
+        channelPackageId: this.tableData[this.changeInfo.index].channelPackageId,
         sdkName: this.changeInfo.sdkName,
         channelPackageName: this.changeInfo.channelPackageName,
         os: this.changeInfo.os,
@@ -207,13 +207,24 @@ export default {
     },
     // 删除数据
     deleteData(index, row) {
-      var params = {
-        id: this.tableData[index].id,
-        filePath: this.tableData[index].filePath,
-      }
-      this.$store.dispatch('delChannelPackage', params).then((data) => {
-        return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
-      })
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var params = {
+          channelPackageId: this.tableData[index].channelPackageId,
+          filePath: this.tableData[index].filePath,
+        }
+        this.$store.dispatch('delChannelPackage', params).then((data) => {
+          return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     },
     // 文件上传成功的钩子函数
     uploadSuccess(response, file, fileList) {

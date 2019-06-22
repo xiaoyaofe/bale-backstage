@@ -16,10 +16,14 @@ const certificate_list = {
     },
     actions: {
     // 获取证书列表
-    getCertificateList({ commit, state }) {
+    getCertificateList({ commit, state },params) {
     return new Promise((resolve, reject) => {
-      getCertificateList().then((data) => {
-        commit('SET_CERTIFICATE_TABLE_DATA', data.data)
+      getCertificateList(params).then((data) => {
+        if (params) {
+          commit('SET_CERTIFICATE_TABLE_DATA',data.data.data.filter(todo=>todo.appId===params))
+        }else{
+          commit('SET_CERTIFICATE_TABLE_DATA', data.data)
+        }
         resolve()
       }).catch(error => {
         reject(error)

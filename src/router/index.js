@@ -84,21 +84,63 @@ export const constantRouterMap = [
       {
         path: 'packing_list',
         name: 'packing',
+        redirect: '/package_management/packing_list/mainPage',
         component: () => import('@/views/packing_list/index'),
-        meta: { title: '打包列表', icon: 'table' }
+        meta: { title: '打包列表', icon: 'table' },
+        children: [
+          {
+            path: 'mainPage',
+            name: 'mainPage',
+            hidden: true,
+            component: () => import('@/views/packing_list/compontents/main'),
+            meta: { title: '打包列表', icon: 'table' },
+
+          },
+          {
+            path: 'detailsPage',
+            // name: 'detailsPage',
+            hidden: true,
+            component: () => import('@/views/packing_list/compontents/details'),
+            // meta: { title: '配置参数', icon: 'table' },
+
+          },
+          {
+            path: 'historyPage',
+            // name:'historyPage',
+            hidden: true,
+            component: () => import('@/views/packing_list/compontents/history'),
+            // meta: { title: '打包记录', icon: 'table' },
+
+          }
+        ]
       },
-      {
-        path: 'packed_record_list',
-        name: 'packed',
-        component: () => import('@/views/packed_record_list/index'),
-        meta: { title: '打包记录列表', icon: 'table' }
-      },
+      // {
+      //   path: 'packed_record_list',
+      //   name: 'packed',
+      //   component: () => import('@/views/packed_record_list/index'),
+      //   meta: { title: '打包记录列表', icon: 'table' }
+      // },
     ]
   }, { path: '*', redirect: '/404', hidden: true }
 ]
 
-export default new Router({
+const router = new Router({
   // mode: 'history', //后端支持可开
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
+// router.beforeEach((to, from, next) => {
+//   // ...
+//   console.log(to);
+//   if (to.path === "/package_management/packing_list/detailsPage") {
+//     const answer = window.confirm('当前页面数据未保存，确定要离开？')
+//       if (answer) {
+//           next()
+//       } else {
+//           next(false)
+//       }
+//   }else {
+//     next()
+//   }
+// })
+export default router

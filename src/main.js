@@ -4,7 +4,7 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 // 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+// import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import '@/styles/index.scss' // global css
 
@@ -14,7 +14,6 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
-
 /**
  * This project originally used easy-mock to simulate data,
  * but its official service is very unstable,
@@ -25,7 +24,8 @@ import '@/permission' // permission control
  */
 // import '../mock' // simulation data
 
-Vue.use(ElementUI, { locale })
+// Vue.use(ElementUI, { locale })
+Vue.use(ElementUI, {  })
 
 Vue.config.productionTip = false
 

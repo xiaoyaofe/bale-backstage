@@ -1,19 +1,21 @@
 <template>
   <div class="app-container">
-    <p>{{domain}}</p>
+    <!-- <p>{{_state.packing_list.mainInfo}}</p> -->
+    <el-button type="primary" style="margin:30px 0" plain @click="goBack"><i class="el-icon-back" /> 返回列表界面</el-button>
     <!-- 步骤一:选择游戏  -->
     <section class="step1">
       <el-steps :active="1" simple>
         <el-step icon="el-icon-tickets" title="步骤一:选择游戏"></el-step>
       </el-steps>
       <div style="margin:20px">
-        <span class="title">请选择游戏:</span>
-        <el-select v-model="appNameEnIndex" filterable placeholder="请选择应用">
+        <span class="title">游戏:</span>
+        <p>{{route}}</p>
+        <el-select v-model="appId" disabled filterable placeholder="请选择应用">
           <el-option
             v-for="(item,index) in _state.game_list.tableData.data"
             :key="index"
             :label="item.appNameZn"
-            :value="index"
+            :value="item.appId"
           ></el-option>
         </el-select>
       </div>
@@ -25,15 +27,14 @@
       </el-steps>
       <div style="margin:20px">
         <span class="title">请选择渠道包:</span>
-        <el-select v-if="stepArr[0]" v-model="channelPackageId" filterable placeholder="请选择渠道包">
+        <el-select disabled  v-model="channelPackageId" filterable placeholder="请选择渠道包">
           <el-option
             v-for="(item,index) in _state.channel_package_list.tableData.data"
             :key="index"
             :label="item.channelPackageName"
-            :value="item.channelId"
+            :value="item.id"
           ></el-option>
         </el-select>
-        <span v-else class="tip">请先选中游戏!!!</span>
       </div>
     </section>
     <!-- 步骤:选择证书 -->
@@ -44,7 +45,6 @@
       <div style="margin:20px">
         <span class="title">请选择证书:</span>
         <el-select
-          v-if="stepArr[0]"
           v-model="certificateIndex"
           filterable
           placeholder="请选择证书"
@@ -57,8 +57,7 @@
             :value="index"
           ></el-option>
         </el-select>
-        <el-button v-if="stepArr[0]" type="primary" plain @click="uploadCertificate">上传证书</el-button>
-        <span v-else class="tip">请先选中游戏!!!</span>
+        <el-button  type="primary" plain @click="uploadCertificate">上传证书</el-button>
       </div>
     </section>
     <!-- 步骤四:配置打包参数 -->
@@ -195,7 +194,7 @@
 <script>
 import Vue from 'vue'
 
-import dialogBox from './dialog'
+import dialogBox from '../../channel_package_configuration/dialog'
 export default {
   components: {
     dialogBox
@@ -211,7 +210,7 @@ export default {
       configValue: '',              //模板参数配置值
       tableHead: ['主键ID', '应用ID', '渠道包ID', '模板ID', '模板名称', '模板参数配置值', '配置参数名称', '配置参数Key值', '上传时间',],
       // aIconData: [],
-      appNameEnIndex: '',           //游戏应用下标
+      appId: '',           //游戏应用下标
       certificateIndex: '',          //证书下标
       channelPackageId: '',         //渠道包ID
       addMotherPackageData: {       //icon上传数据体
@@ -232,12 +231,19 @@ export default {
     }
   },
   created() {
+    this.appId = this.packing_list.tableData.data[this.$route.query.index].appId;
+    this.channelPackageId = this.packing_list.tableData.data[this.$route.query.index].channelPackageId;
+    var params = {
+       taskId:9
+    }
+    console.log(1111111111111);
+    
     // 初始化获取应用列表
-    this.$store.dispatch('getGameList').then((data) => {
-      this.$store.dispatch('getChannelPackage').then((data) => {
-        this.listLoading = false;
-        this.dataInit()
-      })
+    this.$store.dispatch('getTaskParam',params).then((data) => {
+    //   this.$store.dispatch('getChannelPackage').then((data) => {
+    //     this.listLoading = false;
+    //     this.dataInit()
+    //   })
     })
   },
   computed: {
@@ -250,13 +256,16 @@ export default {
     },
     aIconData(){
       return this.$store.state.channel_package_configuration.aIconData
+    },
+    packing_list(){
+      return this.$store.state.packing_list
     }
   },
   watch: {
     // 监听游戏是否切换
-    appNameEnIndex(newValue, oldValue) {
+    appId(newValue, oldValue) {
       if (this._state.game_list.tableData.data[newValue] && !this._state.game_list.tableData.data[newValue].appNameEn) {
-        this.appNameEnIndex = oldValue;
+        this.appId = oldValue;
         this.diolagData.id = this._state.game_list.tableData.data[newValue].id;
         this._state.channel_package_configuration.addAppNameEnDialog = true;
       } else {
@@ -269,7 +278,7 @@ export default {
           this.certificateIndex = '';
           if (this.channelPackageId) {
             var params = {
-              appId: this._state.game_list.tableData.data[this.appNameEnIndex].appId,
+              appId: this._state.game_list.tableData.data[this.appId].appId,
               channelPackageId: this.channelPackageId,
             }
             this.$store.dispatch('getChannelPackageConfiguration', params).then((data) => {
@@ -283,7 +292,7 @@ export default {
     },
     channelPackageId(newValue, oldValue) {
       var params = {
-        appId: this._state.game_list.tableData.data[this.appNameEnIndex].appId,
+        appId: this._state.game_list.tableData.data[this.appId].appId,
         channelPackageId: newValue
       }
       this.$store.commit('SET_CHANNEL_PACKAGE_ID', newValue)
@@ -304,7 +313,7 @@ export default {
     addCertificate() {
       if (!this._state.channel_package_configuration.certificateList.length) {
         this._state.channel_package_configuration.dialogFormVisible = true;
-        this.diolagData.data = this._state.game_list.tableData.data[this.appNameEnIndex]
+        this.diolagData.data = this._state.game_list.tableData.data[this.appId]
       }
     },
     // 取消绑定
@@ -321,7 +330,7 @@ export default {
     // 上传证书
     uploadCertificate() {
       this._state.channel_package_configuration.dialogFormVisible = true;
-      this.diolagData.data = this._state.game_list.tableData.data[this.appNameEnIndex]
+      this.diolagData.data = this._state.game_list.tableData.data[this.appId]
     },
     // 解除绑定
     unBindingTemplateButton() {
@@ -329,7 +338,7 @@ export default {
         return Vue.prototype.$message({ message: '当前应用渠道包未绑定模板, 请先绑定模板!!!', type: 'warning', duration: 1500 })
       }
       var params = {
-        appId: this._state.game_list.tableData.data[this.appNameEnIndex].appId,
+        appId: this._state.game_list.tableData.data[this.appId].appId,
         channelPackageId: this.channelPackageId,
         templateName: this.tableData[0].templateName,
       }
@@ -343,7 +352,7 @@ export default {
         return Vue.prototype.$message({ message: '请选择绑定模板', type: 'warning', duration: 1500 })
       }
       var params = {
-        appId: this._state.game_list.tableData.data[this.appNameEnIndex].appId,
+        appId: this._state.game_list.tableData.data[this.appId].appId,
         channelPackageId: this.channelPackageId,
         templateName: this._state.configuration_template.selectTemplateData[this.bindingTemplateIndex].templateName,
       }
@@ -355,7 +364,7 @@ export default {
     // 触发确定修改按钮
     confirmEdit(row) {
       var params = {
-        appId: this._state.game_list.tableData.data[this.appNameEnIndex].appId,
+        appId: this._state.game_list.tableData.data[this.appId].appId,
         channelPackageId: this.channelPackageId,
         templateName: this.tableData[row.$index].templateName,
         templateId: this.tableData[row.$index].templateId,
@@ -379,7 +388,7 @@ export default {
       return arr[i]
     },
     dataInit(){
-      this.appNameEnIndex = this._state.channel_package_configuration.appNameEnIndex;
+      this.appId = this._state.channel_package_configuration.appId;
       this.channelPackageId = this._state.channel_package_configuration.channelPackageId;
     },
     // 上传成功钩子函数
@@ -399,8 +408,8 @@ export default {
     // 上传文件前的钩子函数
     beforeAvatarUpload(idx, file) {
       console.log(idx,this.aIconData[idx]);
-      this.addMotherPackageData.appNameEn = this._state.game_list.tableData.data[this.appNameEnIndex].appNameEn;
-      this.addMotherPackageData.appId = this._state.game_list.tableData.data[this.appNameEnIndex].appId;
+      this.addMotherPackageData.appNameEn = this._state.game_list.tableData.data[this.appId].appNameEn;
+      this.addMotherPackageData.appId = this._state.game_list.tableData.data[this.appId].appId;
       this.addMotherPackageData.channelPackageId = this.channelPackageId;
       this.addMotherPackageData.iconType = this.aIconData[idx].type;
       this.addMotherPackageData.iconTypeKey = this.aIconData[idx].type_key;
@@ -413,6 +422,9 @@ export default {
       }
       return aImgType.includes(file.type);
     },
+    goBack(){
+      this.$router.push({ path: 'mainPage'})
+    }
 
 
   }

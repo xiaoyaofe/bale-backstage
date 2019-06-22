@@ -1,8 +1,9 @@
 <template>
   <div class="app-container">
     <div style="marginBottom:20px">
-      <el-button  type="info" plain  @click="dialogFormVisible = true">
-        <i class="el-icon-plus" />{{_state.certificate_list.tip}}
+      <el-button type="info" plain @click="dialogFormVisible = true">
+        <i class="el-icon-plus"/>
+        {{_state.certificate_list.tip}}
       </el-button>
     </div>
     <!-- 添加数据弹出框 -->
@@ -20,22 +21,22 @@
           </el-select>
         </el-form-item>
         <el-form-item label="证书名称" :label-width="formLabelWidth">
-          <el-input v-model="addCertificateListData.certificateName" ></el-input>
-        </el-form-item> 
+          <el-input v-model="addCertificateListData.certificateName"></el-input>
+        </el-form-item>
         <el-form-item label="证书密码" :label-width="formLabelWidth">
-          <el-input v-model="addCertificateListData.certificatePassword" ></el-input>
+          <el-input v-model="addCertificateListData.certificatePassword"></el-input>
         </el-form-item>
         <el-form-item label="别名" :label-width="formLabelWidth">
-          <el-input v-model="addCertificateListData.alias" ></el-input>
+          <el-input v-model="addCertificateListData.alias"></el-input>
         </el-form-item>
         <el-form-item label="别名密码" :label-width="formLabelWidth">
-          <el-input v-model="addCertificateListData.aliasPassword" ></el-input>
+          <el-input v-model="addCertificateListData.aliasPassword"></el-input>
         </el-form-item>
         <el-form-item label="上传apk" :label-width="formLabelWidth">
           <el-upload
             class="upload-demo"
             ref="upload"
-            action="http://172.16.10.106:8080/certificate/add"
+            :action="domain+'/certificate/add'"
             :data="addCertificateListData"
             :on-success="uploadSuccess"
             :file-list="fileList"
@@ -54,18 +55,17 @@
     <el-dialog title="编辑数据" :visible.sync="changeDataFormVisible">
       <el-form>
         <el-form-item label="证书名称" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.certificateName" ></el-input>
+          <el-input v-model="changeInfo.certificateName"></el-input>
         </el-form-item>
         <el-form-item label="证书密码" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.certificatePassword" ></el-input>
+          <el-input v-model="changeInfo.certificatePassword"></el-input>
         </el-form-item>
-         <el-form-item label="别名" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.alias" ></el-input>
+        <el-form-item label="别名" :label-width="formLabelWidth">
+          <el-input v-model="changeInfo.alias"></el-input>
         </el-form-item>
         <el-form-item label="别名密码" :label-width="formLabelWidth">
-          <el-input v-model="changeInfo.aliasPassword" ></el-input>
+          <el-input v-model="changeInfo.aliasPassword"></el-input>
         </el-form-item>
-        
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="changeDataFormVisible = false">取 消</el-button>
@@ -73,7 +73,7 @@
       </div>
     </el-dialog>
     <!-- table -->
-     <el-table
+    <el-table
       v-loading="listLoading"
       :data="tableData"
       element-loading-text="Loading"
@@ -95,7 +95,6 @@
           <el-button type="danger" plain @click="deleteData(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
-      
     </el-table>
   </div>
 </template>
@@ -116,36 +115,35 @@ export default {
   },
   data() {
     return {
-      list: null,
+      domain:process.env.BASE_API,
       listLoading: true,
-      tableData:[],
-      fileList:[],
-      appNameEnIndex:'',
-      // 
+      tableData: [],
+      fileList: [],
+      appNameEnIndex: '',
       dialogFormVisible: false,
       changeDataFormVisible: false,
       form: {
-          alias:null,
-          aliasPassword:null,
-          certificatePassword:null,
+        alias: null,
+        aliasPassword: null,
+        certificatePassword: null,
       },
-      addCertificateListData:{
-        appId:0,//应用ID
-        alias:'',//别名
-        certificateName:'', //证书名称
-        certificatePassword:'',//证书密码
-        aliasPassword:'',//别名密码
-        appNameEn:'',//应用英文名
+      addCertificateListData: {
+        appId: 0,//应用ID
+        alias: '',//别名
+        certificateName: '', //证书名称
+        certificatePassword: '',//证书密码
+        aliasPassword: '',//别名密码
+        appNameEn: '',//应用英文名
       },
-      changeInfo:{
-          alias:null,
-          aliasPassword:null,
-          certificateName:null,
-          certificatePassword:null,
-          index:null,
+      changeInfo: {
+        alias: null,
+        aliasPassword: null,
+        certificateName: null,
+        certificatePassword: null,
+        index: null,
       },
       formLabelWidth: '120px',
-      tableHead:['签名ID','应用ID','证书名称','证书密码','别名(alias)','别名密码(aliaspwd)','存储目录','上传时间']
+      tableHead: ['签名ID', '应用ID', '证书名称', '证书密码', '别名(alias)', '别名密码(aliaspwd)', '存储目录', '上传时间']
 
     }
   },
@@ -168,12 +166,12 @@ export default {
   },
   methods: {
     // 取消
-    cancel(){
-      this._state.dialogFormVisible = false;
-      Object.keys(this.form).forEach((key, index) => {this.form[key] = null})
+    cancel() {
+      this.dialogFormVisible = false;
+      Object.keys(this.form).forEach((key, index) => { this.form[key] = null })
     },
     // 添加框确定添加按钮
-    determineChangeData(){
+    determineChangeData() {
       if (this.appNameEnIndex === '') {
         return Vue.prototype.$message({ message: '请选中应用', type: 'warning', duration: 1500 })
       }
@@ -187,49 +185,52 @@ export default {
       this.$refs.upload.submit();
     },
     // 编辑数据
-    changeData(){
-        var params = {
-          id:this.tableData[this.changeInfo.index].id,
-          appId: this.tableData[this.changeInfo.index].appId,
-          certificateName: this.changeInfo.certificateName,
-          certificatePassword: this.changeInfo.certificatePassword,
-          alias: this.changeInfo.alias,
-          aliasPassword: this.changeInfo.aliasPassword,
-        }
-         this.$store.dispatch('changeCertificateList',params).then((data) => {
-          Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
-          this.changeDataFormVisible = false;
-          Object.keys(this.changeInfo).forEach((item)=>{
-            this.changeInfo.item = null
-          })
+    changeData() {
+      var params = {
+        certificateId: this.tableData[this.changeInfo.index].certificateId,
+        appId: this.tableData[this.changeInfo.index].appId,
+        certificateName: this.changeInfo.certificateName,
+        certificatePassword: this.changeInfo.certificatePassword,
+        alias: this.changeInfo.alias,
+        aliasPassword: this.changeInfo.aliasPassword,
+      }
+      this.$store.dispatch('changeCertificateList', params).then((data) => {
+        Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
+        this.changeDataFormVisible = false;
+        Object.keys(this.changeInfo).forEach((item) => {
+          this.changeInfo.item = null
+        })
       })
     },
     // 编辑数据下标
-    startChange(index,row){
+    startChange(index, row) {
       this.changeInfo.alias = this.tableData[index].alias;
       this.changeInfo.aliasPassword = this.tableData[index].aliasPassword;
       this.changeInfo.certificateName = this.tableData[index].certificateName;
       this.changeInfo.certificatePassword = this.tableData[index].certificatePassword;
-      this.changeInfo.index  = index;
+      this.changeInfo.index = index;
       this.changeDataFormVisible = true;
     },
     // 删除数据
-    deleteData(index,row){
-       var params = {
-        id: this.tableData[index].id,
-        filePath: this.tableData[index].filePath,
-      }
-      this.$store.dispatch('delCertificateList', params).then((data) => {
-        return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
-      })
-    },
-    // 获取数据
-    fetchData() {
-      this.listLoading = true
-      getList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.listLoading = false
-      })
+    deleteData(index, row) {
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var params = {
+          certificateId: this.tableData[index].certificateId,
+          filePath: this.tableData[index].filePath,
+        }
+        this.$store.dispatch('delCertificateList', params).then((data) => {
+          return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     },
     // 文件上传成功的钩子函数
     uploadSuccess(response, file, fileList) {
@@ -247,15 +248,13 @@ export default {
       return Vue.prototype.$message({ message: '添加成功', type: 'success', duration: 1500 })
     },
     // 设置表格列宽
-    getWidth(i){
-      var arr = [100,100,150,150,150,150,,160,160]
+    getWidth(i) {
+      var arr = [100, 100, 150, 150, 150, 150, , 160, 160]
       return arr[i]
     },
   }
 }
 </script>
 <style lang="scss" scoped>
-
-
 </style>
 
