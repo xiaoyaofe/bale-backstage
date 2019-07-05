@@ -1,4 +1,4 @@
-import {getGameList,changeGameListInfo} from '@/api/module'
+import { requestData} from '@/api/module'
 
 const game_list = {
   state: {
@@ -11,9 +11,10 @@ const game_list = {
     }
   },
   actions: {
+    // 获取打包任务列表
     getGameList({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getGameList().then((data) => {
+        requestData('/gameInfo/list','get').then((data) => {
           commit('SET_TABLEDATA', data.data)
           resolve()
         }).catch(error => {
@@ -23,7 +24,7 @@ const game_list = {
     },
     changeGameListInfo({commit,state},params) {
       return new Promise((resolve, reject) => {
-        changeGameListInfo(params).then((data)=>{
+        requestData('/gameInfo/update','post',params).then((data) => {
           commit('SET_TABLEDATA', data.data)
           resolve()
         }).catch(error => {

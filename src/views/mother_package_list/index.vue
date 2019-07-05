@@ -2,11 +2,11 @@
   <div class="app-container">
     <div style="marginBottom:20px">
       <el-button type="info" plain @click="dialogFormVisible = true">
-        <i class="el-icon-plus"/>添加
+        <i class="el-icon-plus"/>添加母包
       </el-button>
     </div>
     <!-- 添加数据弹出框 -->
-    <el-dialog title="添加游戏母包" :visible.sync="dialogFormVisible" @close="cancel">
+    <el-dialog title="添加游戏母包" :visible.sync="dialogFormVisible" @close="cancelAddingParentPackage">
       <el-form>
         <el-form-item label="应用名称" :label-width="formLabelWidth">
           <el-select v-model="appNameEnIndex" filterable placeholder="请选择应用">
@@ -15,7 +15,6 @@
               :key="index"
               :label="item.appNameZn"
               :value="index"
-              :disabled="!item.appNameEn"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -50,7 +49,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
+        <el-button @click="cancelAddingParentPackage">取 消</el-button>
         <el-button type="primary" @click="determineAddData">确 定</el-button>
       </div>
     </el-dialog>
@@ -83,15 +82,14 @@
       element-loading-text="Loading"
       border
       fit
-      highlight-current-row
-    >
+      highlight-current-row>
       <el-table-column
         v-for="(item, i) in (Object.keys(tableData[0]?tableData[0]:{}))"
+        v-if="i!=7"
         :key="i"
         :sortable="i==0||i==1"
         :prop="item"
         :label="tableHead[i]"
-        :width="getWidth(i)"
         :formatter="formatterData"
       ></el-table-column>
       <el-table-column label="操作" width="220" align="center">
@@ -127,7 +125,6 @@ export default {
       },
       addMotherPackageData: {       //添加框数据体
         appId: 0,
-        appNameEn: ' ',
         versionName: '',
         versionCode: '',
         versionDesc: '',
@@ -155,8 +152,9 @@ export default {
   },
   methods: {
     // 添加框取消按钮触发
-    cancel() {
+    cancelAddingParentPackage() {
       // 初始化添加表单
+      this.fileList=[]
       this.dialogFormVisible = false
       this.basePackageType = '0';
       this.appNameEnIndex = '';
@@ -175,7 +173,6 @@ export default {
       }
       this.addMotherPackageData.basePackageType = this.basePackageType;
       this.addMotherPackageData.appId = this._state.game_list.tableData.data[this.appNameEnIndex].appId;
-      this.addMotherPackageData.appNameEn = this._state.game_list.tableData.data[this.appNameEnIndex].appNameEn;
       for (var key in this.addMotherPackageData) {
         if (this.addMotherPackageData[key] === '') {
           return Vue.prototype.$message({ message: '添加失败,请选中上传文件', type: 'warning', duration: 1500 })
@@ -207,8 +204,6 @@ export default {
     },
     // 编辑按钮触发
     startChange(index, row) {
-      console.log(111,this.tableData[index]);
-      
       this.changeInfo.versionName = this.tableData[index].versionName;
       this.changeInfo.versionCode = this.tableData[index].versionCode;
       this.changeInfo.versionDesc = this.tableData[index].versionDesc;
@@ -253,6 +248,9 @@ export default {
     },
     // 文件上传成功的钩子函数
     uploadSuccess(response, file, fileList) {
+      if (response.code!=200) {
+        return Vue.prototype.$message({ message: response,message, type: 'error', duration: 1500 })
+      }
       this.basePackageType = '0';
       this.appNameEnIndex = '';
       Object.keys(this.addMotherPackageData).forEach((key, index) => {

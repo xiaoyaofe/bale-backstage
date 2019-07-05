@@ -2,7 +2,7 @@ import {requestData} from '@/api/module'
 
 const channel_package_list = {
     state: {
-      tip:'添加配置模板',
+      tip:'添加模板',
       tableData:[],
       selectTemplateData:[],
     },
@@ -91,7 +91,19 @@ const channel_package_list = {
             reject(error)
           })
         })
-        },
+      },
+      // 模板复制
+      copyTemplate({commit,state},params) {
+        return new Promise((resolve, reject) => {
+          requestData('/template/copy','post',params).then((data)=>{
+            // commit('SET_SELECT_TEMPLATE_DATA', data.data.data)
+            resolve()
+          }).catch(error => {
+            reject(error)
+          })
+        })
+      },
+
       
     },
 }

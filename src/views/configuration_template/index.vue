@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <!-- 操作表单 -->
     <div style="marginBottom:20px;display: flex;justify-content: start;">
       <el-select filterable v-model="templateIndex" placeholder="请选择模板">
         <el-option
@@ -17,34 +18,55 @@
       >
         <el-button slot="append" icon="el-icon-edit-outline" @click="changeTemplateName">修改模板名称</el-button>
       </el-input>
-      <el-button type="info" plain @click="addDataDialog = true" style="marginLeft:20px">
+      <el-button
+        type="info"
+        plain
+        @click="addDataDialog = true;addDataParams=true"
+        style="marginLeft:20px"
+      >
         <i class="el-icon-plus"/>
         {{_state.configuration_template.tip}}
       </el-button>
-      <el-button type="info" plain @click="deleteTemplate" style="marginLeft:20px">
-        <i class="el-icon-delete"/>&nbsp;删除配置摸板
+      <el-button
+        type="info"
+        plain
+        @click="addDataDialog = true;addDataParams=false"
+        style="marginLeft:20px"
+      >
+        <i class="el-icon-plus"/>添加模板参数
+      </el-button>
+      <el-button type="info" plain @click="copyDataDialog=true" style="marginLeft:20px">
+        <i class="el-icon-document-copy"/>&nbsp;复制摸板
+      </el-button>
+      <el-button type="danger" plain @click="deleteTemplate" style="marginLeft:20px">
+        <i class="el-icon-delete"/>&nbsp;删除摸板
       </el-button>
     </div>
     <!-- 添加数据弹出框 -->
-    <el-dialog title="添加数据" :visible.sync="addDataDialog" @close="cancelAddData">
+    <el-dialog title="添加数据" :visible.sync="addDataDialog" @close="cancelAddTemplate">
       <el-form>
         <el-form-item label="模板名称" :label-width="formLabelWidth">
-          <el-input v-model="addConfigurationTemplate.templateName"></el-input>
+          <el-input v-if="addDataParams" v-model="addConfigurationTemplate.templateName"></el-input>
+          <el-input
+            v-if="!addDataParams"
+            :placeholder="selectTemplateData[templateIndex].templateName"
+            disabled
+          ></el-input>
         </el-form-item>
-        <el-form-item label="配置参数名称" :label-width="formLabelWidth">
+        <el-form-item v-if="!addDataParams" label="配置参数名称" :label-width="formLabelWidth">
           <el-input v-model="addConfigurationTemplate.configName"></el-input>
         </el-form-item>
-        <el-form-item label="配置参数key值" :label-width="formLabelWidth">
+        <el-form-item v-if="!addDataParams" label="配置参数key值" :label-width="formLabelWidth">
           <el-input v-model="addConfigurationTemplate.configKey"></el-input>
         </el-form-item>
-        <el-form-item label="配置参数类型" :label-width="formLabelWidth">
+        <el-form-item v-if="!addDataParams" label="配置参数类型" :label-width="formLabelWidth">
           <el-radio v-model="configType" label="0">string</el-radio>
           <el-radio v-model="configType" label="1">param</el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelAddData">取 消</el-button>
-        <el-button type="primary" @click="determineAddData">确 定</el-button>
+        <el-button @click="cancelAddTemplate">取 消</el-button>
+        <el-button type="primary" @click="determineAddTemplate">确 定</el-button>
       </div>
     </el-dialog>
     <!-- 配置参数弹出框 -->
@@ -66,6 +88,28 @@
         <el-button type="primary" @click="determineChangeData">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 复制模板弹窗 -->
+    <el-dialog title="复制模板" :visible.sync="copyDataDialog" @close="cancelCopyTemplate">
+      <el-form>
+        <el-form-item label="请选择要复制的模板" label-width="180px">
+          <el-select filterable v-model="copyTemplateName" placeholder="请选择模板">
+            <el-option
+              v-for="(item,i) in $store.state.configuration_template.selectTemplateData"
+              :key="i"
+              :label="item.templateName"
+              :value="item.templateName"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="请输入新的模板名称" label-width="180px">
+          <el-input v-model="copyedTemplateName"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelCopyTemplate">取 消</el-button>
+        <el-button type="primary" @click="determineCopyTemplate">确 定</el-button>
+      </div>
+    </el-dialog>
     <!-- table -->
     <el-table
       v-loading="listLoading"
@@ -74,23 +118,21 @@
       empty-text="暂无数据"
       border
       fit
-      highlight-current-row
-    >
+      highlight-current-row>
       <el-table-column
         v-for="(item, i) in (Object.keys(tableData[0]?tableData[0]:{}))"
         :key="i"
         :sortable="i==0"
         :prop="item"
         :label="tableHead[i]"
-        :width="getWidth(i)"
       ></el-table-column>
-      <el-table-column label="操作" align="center">
+      <el-table-column label="操作" align="center" width="300px">
         <template slot-scope="scope">
-          <el-button type="success" plain @click="startChangeDialog(scope.$index, scope.row)">
-            <i class="el-icon-edit-outline"/>&nbsp;修改
+          <el-button type="primary" plain @click="startChangeDialog(scope.$index, scope.row)">
+            <i class="el-icon-edit-outline"/>&nbsp;编辑
           </el-button>
           <el-button type="danger" plain @click="deleteTemplateData(scope.$index, scope.row)">
-            <i class="el-icon-delete"/>&nbsp;删除模板配置参数
+            <i class="el-icon-delete"/>&nbsp;删除模板参数
           </el-button>
         </template>
       </el-table-column>
@@ -109,9 +151,13 @@ export default {
       selectTemplateData: [], //模板选择数据体系
       newTemplateName: '',    //新的模板名称
       listLoading: true,      //loading显示/隐藏变量
-      addDataDialog: false,   //添加对话框显示/隐藏变量
+      addDataDialog: false,   //添加模板对话框显示/隐藏变量
+      addDataParams: true,    //添加模板参数对话框显示/隐藏变量
+      copyDataDialog: false,  //复制模板对话框显示/隐藏变量
       changeDataDialog: false,//修改对话框显示/隐藏变量
       formLabelWidth: '120px',//表单长度
+      copyTemplateName: '',   //复制模板名
+      copyedTemplateName: '', //复制之后的模板重命名
       changeInfo: {           //修改参数数据体
         configId: '',
         templateName: '',
@@ -119,12 +165,13 @@ export default {
         configKey: "",
         configType: '',
       },
-      addConfigurationTemplate: {
+      addConfigurationTemplate: { //添加参数数据体
         templateName: '',     //模板名称
         configName: '',       //配置参数名称
         configKey: '',        //配置参数key值
       },
       tableHead: ['模板ID', '模板名称', '配置参数名称', '配置参数key值', '配置参数类型', '创建时间',], //自定义表头参数
+      
     }
   },
   mounted() {
@@ -153,18 +200,50 @@ export default {
     }
   },
   methods: {
+    // 取消复制模板
+    cancelCopyTemplate() {
+      this.copyTemplateName = '';
+      this.copyedTemplateName = '';
+      this.copyDataDialog = false;
+    },
+    // 确定复制模板
+    determineCopyTemplate() {
+      if (this.copyTemplateName === '' || !this.copyedTemplateName === '') {
+        return Vue.prototype.$message({ message: '请将复制模板信息填写完整', type: 'warning', duration: 1500 })
+      }
+      var params = {
+        templateName: this.copyTemplateName,
+        newTemplateName: this.copyedTemplateName,
+      }
+      this.$store.dispatch('copyTemplate', params).then((data) => {
+        this.copyTemplateName = '';
+        this.copyedTemplateName = '';
+        this.copyDataDialog = false;
+        this.$store.dispatch('getConfigurationTemplate').then((data) => {
+          return Vue.prototype.$message({ message: '复制成功', type: 'success', duration: 1500 })
+        })
+      })
+
+    },
     // 取消添加模板
-    cancelAddData() {
+    cancelAddTemplate() {
       Object.keys(this.addConfigurationTemplate).forEach((key, index) => { this.addConfigurationTemplate[key] = '' })
       this.addDataDialog = false;
     },
     // 确定添加模板
-    determineAddData() {
-      for (var key in this.addConfigurationTemplate) {
-        if (this.addConfigurationTemplate[key] === '') {
-          return Vue.prototype.$message({ message: '添加失败,请将上传信息填写完整', type: 'warning', duration: 1500 })
+    determineAddTemplate() {
+      // addDataParams:true ==> 添加模板  false ==> 添加模板参数
+      if (this.addDataParams) {
+        if (!this.addConfigurationTemplate.templateName) {
+          return Vue.prototype.$message({ message: '请输入模板名称', type: 'warning', duration: 1500 })
         }
+      } else {
+        if (this.addConfigurationTemplate.configName === '' || this.addConfigurationTemplate.configKey === '') {
+          return Vue.prototype.$message({ message: '请输入参数信息', type: 'warning', duration: 1500 })
+        }
+        this.addConfigurationTemplate.templateName = this.selectTemplateData[this.templateIndex].templateName
       }
+      // 判断参数类型
       if (this.configType === '1') {
         this.addConfigurationTemplate.configType = 'param'
       } else {
@@ -229,7 +308,9 @@ export default {
           configId: this.tableData[index].configId
         }
         this.$store.dispatch('delConfigurationTemplateParams', params).then((data) => {
-          return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
+          this.$store.dispatch('getConfigurationTemplate').then((data) => {
+            return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
+          })
         })
       }).catch(() => {
         this.$message({
@@ -240,19 +321,31 @@ export default {
     },
     // 删除模板
     deleteTemplate() {
-      var params = {
-        templateName: this.selectTemplateData[this.templateIndex].templateName,
-      }
-      this.$store.dispatch('delConfigurationTemplate', params).then((data) => {
-        var params = { templateName: this.selectTemplateData[0] ? this.selectTemplateData[0].templateName : '' }
-        this.$store.dispatch('getTemplateDetails', params).then((data, params) => {
-          this.listLoading = false;
-          this.templateIndex = 0;
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var params = {
+          templateName: this.selectTemplateData[this.templateIndex].templateName,
+        }
+        this.$store.dispatch('delConfigurationTemplate', params).then((data) => {
+          var params = { templateName: this.selectTemplateData[0] ? this.selectTemplateData[0].templateName : '' }
+          this.$store.dispatch('getTemplateDetails', params).then((data, params) => {
+            this.listLoading = false;
+            this.templateIndex = 0;
+          })
+          return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
         })
-        return Vue.prototype.$message({ message: '删除成功', type: 'success', duration: 1500 })
-      })
-    },
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
 
+
+    },
     // 设置表格列宽
     getWidth(i) {
       var arr = [100, , 150, 150, 150, 200, 150]

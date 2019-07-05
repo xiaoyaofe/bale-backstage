@@ -1,7 +1,4 @@
-import {getMasterPackageList,
-        changeGameListInfo,
-        delMasterPackageList,
-        changeMasterPackageInfo} from '@/api/module'
+import {requestData} from '@/api/module'
 
 const mother_package_list = {
   state: {
@@ -21,7 +18,7 @@ const mother_package_list = {
     // 获取母包列表
     getMasterPackageList({ commit, state },params) {
       return new Promise((resolve, reject) => {
-        getMasterPackageList(params).then((data) => {
+        requestData('/basePackage/list','get',params).then((data) => {
           if (params) {
             commit('SET_MOTHER_TABLE_DATA', data.data.data.filter(todo=>todo.appId===params))
           }else{
@@ -36,7 +33,7 @@ const mother_package_list = {
     // 删除母包列表
     delMasterPackageList({commit,state},params){
       return new Promise((resolve, reject) => {
-        delMasterPackageList(params).then((data) => {
+        requestData('/basePackage/del','post',params).then((data) => {
           commit('SET_MOTHER_TABLE_DATA', data.data)
           resolve()
         }).catch(error => {
@@ -47,7 +44,7 @@ const mother_package_list = {
     // 修改母包信息
     changeMasterPackageInfo({commit,state},params) {
       return new Promise((resolve, reject) => {
-        changeMasterPackageInfo(params).then((data)=>{
+        requestData('/basePackage/update','post',params).then((data) => {
           commit('SET_MOTHER_TABLE_DATA', data.data)
           resolve()
         }).catch(error => {

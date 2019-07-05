@@ -70,12 +70,6 @@ export const constantRouterMap = [
         meta: { title: '渠道包列表', icon: 'table' },
       },
       {
-        path: 'channel_package_configuration',
-        name: 'channel_package_configuration',
-        component: () => import('@/views/channel_package_configuration/index'),
-        meta: { title: '渠道包配置', icon: 'table' },
-      },
-      {
         path: 'configuration_template',
         name: 'configuration_template',
         component: () => import('@/views/configuration_template/index'),

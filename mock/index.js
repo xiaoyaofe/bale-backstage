@@ -1,8 +1,6 @@
 import Mock from 'mockjs'
 import userAPI from './user'
 import tableAPI from './table'
-import motherAPI from './mother'
-import certificate from './certificate'
 
 
 
@@ -27,8 +25,6 @@ Mock.mock(/\/user\/logout/, 'post', userAPI.logout)
 
 // Table
 Mock.mock(/\/table\/list/, 'get', tableAPI.list)
-Mock.mock(/\/mother\/list/, 'get', motherAPI.list)
-Mock.mock(/\/certificate\/list/, 'get', certificate.list)
 
 
 export default Mock

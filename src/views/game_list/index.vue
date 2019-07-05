@@ -10,21 +10,6 @@
       <el-button slot="append" icon="el-icon-search" @click="getSearchData">筛选</el-button>
       </el-input>
     </div>
-    <!-- 编辑数据弹出框 -->
-    <el-dialog title="编辑数据" :visible.sync="changeDataFormVisible">
-      <el-form>
-        <el-form-item label="应用名称" label-width="120px">
-          <el-input v-model="changeInfo.appNameEn"></el-input>
-        </el-form-item>
-        <el-form-item label="应用描述" label-width="120px">
-          <el-input v-model="changeInfo.appDescribe"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="changeDataFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="determineChangeData">确 定</el-button>
-      </div>
-    </el-dialog>
     <!-- 应用列表框 -->
     <el-table
       v-loading="listLoading"
@@ -42,11 +27,6 @@
         :label="tableHead[i]"
         :width="getWidth(i)"
       ></el-table-column>
-      <el-table-column label="操作" width="120" align="center">
-        <template slot-scope="scope">
-          <el-button type="primary" plain @click="startChange(scope.$index, scope.row)">编辑</el-button>
-        </template>
-      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -60,13 +40,7 @@ export default {
       tableData: [],                //表格数据
       inputAppName: '',             //筛选选内容
       listLoading: true,            //loading加载变量
-      changeDataFormVisible: false, //编辑框变量
-      changeInfo: {                 //编辑框参数
-        appNameEn: null,          
-        appDescribe: null,
-        index: null,
-      },
-      tableHead:['主键ID','appId','中文名称','英文名称','应用appKey','应用APPSecret','应用appDescribe','创建时间',]
+      tableHead:['主键ID','appId','中文名称','应用appKey','应用APPSecret','创建时间',]
     }
   },
   created() {
@@ -102,31 +76,9 @@ export default {
       }
 
     },
-    // 编辑框确定按钮触发
-    determineChangeData() {
-      var params = {
-        id:this.tableData[this.changeInfo.index].id,
-        appNameEn:this.changeInfo.appNameEn,
-        appDescribe:this.changeInfo.appDescribe,
-      }
-      this.$store.dispatch('changeGameListInfo',params).then((data) => {
-          Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
-          this.changeDataFormVisible = false;
-          Object.keys(this.changeInfo).forEach((item)=>{
-            this.changeInfo.item = null
-          })
-      })
-    },
-    // 点击编辑按钮触发
-    startChange(index, row) {
-      this.changeInfo.appNameEn = this.tableData[index].appNameEn;
-      this.changeInfo.appDescribe = this.tableData[index].appDescribe;
-      this.changeInfo.index = index;
-      this.changeDataFormVisible = true;
-    },
     // 设置表格列宽
     getWidth(i){
-      var arr = [100,100,180,180,,,,160]
+      var arr = [150,150,,,,]
       return arr[i]
     },
   }

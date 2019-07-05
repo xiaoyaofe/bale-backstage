@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <transition name="fade">
+  <div class="app-main">
+    <transition name="fade-transform" mode="out-in">
       <!-- <keep-alive> -->
         <router-view></router-view>
       <!-- </keep-alive> -->
@@ -13,13 +13,6 @@ export default {
     return {
     }
   },
-  watch: {
-    '$route'(to, from) {
-      const toDepth = to.path.split('/').length
-      const fromDepth = from.path.split('/').length
-      this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
-    }
-  },
   computed: {
     packing_list() {
       return this.$store.state.packing_list
@@ -28,12 +21,10 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
+.app-main {
+  /*50 = navbar  */
+  min-height: calc(100vh - 50px);
+  position: relative;
+  overflow: hidden;
 }
 </style>
