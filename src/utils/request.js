@@ -27,11 +27,8 @@ service.interceptors.request.use(
 // response 拦截器
 service.interceptors.response.use(
   response => {
-    /**
-     * code为非20000是抛错 可结合自己业务进行修改
-     */
     const res = response.data
-    if (![200,20000].includes(res.code)) {
+    if (res.code!=200)) {
       Message({
         message: res.message,
         type: 'error',
