@@ -1,8 +1,9 @@
 # 服务器部署目录
   ### 172.16.3.212
-    admin:administrator
-    password:Aa1234567!
-  [线上地址](http://172.16.3.212:8081/#/)
+    远程登录账号密码
+      userName: administrator
+      password: Aa1234567!
+  [线上地址:http://172.16.3.212:8081/#/package_management/game_list](http://172.16.3.212:8081/#/)
 
 # vue-admin-template
 

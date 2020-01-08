@@ -37,7 +37,7 @@
         <el-form-item label="版本号" :label-width="formLabelWidth">
           <el-input v-model="addMotherPackageData.versionCode"></el-input>
         </el-form-item>
-        <el-form-item label="母包包名" :label-width="formLabelWidth">
+        <el-form-item label="母包名称" :label-width="formLabelWidth">
           <el-input v-model="addMotherPackageData.basePackageName"></el-input>
         </el-form-item>
         <el-form-item label="版本描述" :label-width="formLabelWidth">

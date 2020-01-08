@@ -78,7 +78,6 @@
               :sortable="i==0||i==1"
               :prop="item"
               :label="tableHead[i]"
-              :width="getWidth(i)"
             ></el-table-column>
             <el-table-column
               min-width="300px"
@@ -287,7 +286,7 @@ export default {
         id: this.packing_list.taskConfigParam[row.$index].id,
         configValue: this.configValue
       }
-      this.$store.dispatch('changeChannelPackageInfo', Qs(params)).then((data) => {
+      this.$store.dispatch('changeChannelPackageInfo', params).then((data) => {
         this.changeConfigIndex = -1;
         this.configValue = "";
         this.$message({ message: '修改渠道包配置信息成功', type: 'success' })
@@ -317,12 +316,14 @@ export default {
       this.packing_list.aIconData[idx].progress = Math.floor(event.percent) - 10;
     },
     // ICON上传文件前的钩子函数
-    beforeAvatarUpload(idx, file) {
+    beforeAvatarUpload(idx, file) {      
+      console.log(999,idx,file);
       this.addIconUploadData.id = this.packing_list.aIconData[idx].id;
       this.addIconUploadData.taskId = this.packing_list.tableData.data[this.$route.query.index].taskId;
       this.addIconUploadData.iconType = this.packing_list.aIconData[idx].iconType;
       this.addIconUploadData.iconTypeKey = this.packing_list.aIconData[idx].iconTypeKey;
       this.addIconUploadData.filePath = this.packing_list.aIconData[idx].filePath;
+
       // this.addIconUploadData.file= file;
       const aImgType = ['image/jpeg', 'image/png']
       if (!aImgType.includes(file.type)) {
