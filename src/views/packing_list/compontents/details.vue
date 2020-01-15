@@ -2,6 +2,8 @@
   <div class="app-container">
     <el-button type="primary" style="margin:10px 0" plain @click="goBack">
       <i class="el-icon-back"/> 返回列表界面
+        <!-- <p>{{$store.state.game_list.tableData.data}}</p> -->
+
     </el-button>
     <div v-if="$route.query.index>=0&&packing_list.tableData.data">
       <!-- 步骤一:选择游戏  -->
@@ -18,7 +20,23 @@
           ></el-input>
         </div>
       </section>
-      <!-- 步骤二选择渠道包  -->
+       <!-- 母包展示  -->
+      <section class="step2">
+        <el-steps :active="1" simple>
+          <el-step icon="el-icon-tickets" title="当前母包"></el-step>
+        </el-steps>
+        <div style="margin:20px">
+          <span class="title">母包:</span>
+          <el-input
+            style="width:400px"
+            disabled
+            :placeholder="packing_list.motherPackageName"
+          ></el-input>
+          <el-button type="primary" plain @click="switchMotherPackage" :disabled="!!$route.query.taskStatus">切换母包</el-button>
+          <el-button type="primary" plain @click="uploadMotherPackage" :disabled="!!$route.query.taskStatus">上传母包</el-button>
+        </div>
+      </section>
+      <!-- 渠道包展示  -->
       <section class="step2">
         <el-steps :active="1" simple>
           <el-step icon="el-icon-tickets" title="当前渠道包"></el-step>
@@ -28,8 +46,10 @@
           <el-input
             style="width:400px"
             disabled
-            :placeholder="packing_list.tableData.data[$route.query.index].channelPackageName"
+            :placeholder="packing_list.channelPackageName"
           ></el-input>
+          <el-button type="primary" plain @click="switchChannelPackage" :disabled="!!$route.query.taskStatus">切换渠道包</el-button>
+          <el-button type="primary" plain @click="uploadChannelPackage" :disabled="!!$route.query.taskStatus">上传渠道包</el-button>
         </div>
       </section>
       <!-- 步骤三:选择证书 -->
@@ -39,13 +59,14 @@
         </el-steps>
         <div style="margin:20px">
           <span class="title">证书:</span>
+          
           <el-input
             style="width:400px"
             disabled
-            :placeholder="packing_list.sdkPackageCertificate?'当前绑定的证书是 : '+packing_list.sdkPackageCertificate.certificateName:'暂未绑定证书'"
+            :placeholder="packing_list.certificateName?'当前绑定的证书是 : '+packing_list.certificateName:'暂未绑定证书'"
           ></el-input>
-          <el-button type="primary" plain @click="switchCertificate">切换证书</el-button>
-          <el-button type="primary" plain @click="uploadCertificate">上传证书</el-button>
+          <el-button type="primary" plain @click="switchCertificate" :disabled="!!$route.query.taskStatus">切换证书</el-button>
+          <el-button type="primary" plain @click="uploadCertificate" :disabled="!!$route.query.taskStatus">上传证书</el-button>
         </div>
       </section>
       <!-- 步骤四:配置参数 -->
@@ -56,8 +77,8 @@
         <div style="margin:20px">
           <span class="title">模板操作:</span>
           <strong>
-            <el-button type="primary" @click="bindingTemplateButton">绑定模板</el-button>
-            <el-button type="primary" @click="unBindingTemplateButton">模板解绑</el-button>
+            <el-button type="primary" :disabled="!!$route.query.taskStatus" @click="bindingTemplateButton">绑定模板</el-button>
+            <el-button type="primary" :disabled="!!$route.query.taskStatus" @click="unBindingTemplateButton">模板解绑</el-button>
           </strong>
           <!-- <p>{{packing_list.taskConfigParam}}</p> -->
           <!-- table -->
@@ -80,7 +101,6 @@
               :label="tableHead[i]"
             ></el-table-column>
             <el-table-column
-              min-width="300px"
               v-for="(item, i) in (Object.keys(packing_list.taskConfigParam[0]?packing_list.taskConfigParam[0]:{}))"
               v-if="i===7"
               :key="i"
@@ -114,6 +134,7 @@
                   size="small"
                   icon="el-icon-edit"
                   @click="changeConfigIndex = row.$index"
+                  :disabled="!!$route.query.taskStatus"
                 >修改</el-button>
               </template>
             </el-table-column>
@@ -134,6 +155,7 @@
                 :action="domain+'/task/addSdkPackageIcon'"
                 :data="addIconUploadData"
                 :show-file-list="false"
+                :disabled="!!$route.query.taskStatus"
                 :on-success="IconUploadSuccess.bind(this,i)"
                 :before-upload="beforeAvatarUpload.bind(this,i)"
                 :on-progress="handleProgress.bind(this,i)"
@@ -184,20 +206,8 @@ export default {
       tableHead: ['主键ID', '任务ID', '模板名称', '模板ID', '配置名称', '配置key值', '配置类型', '参数值', '创建时间']
     }
   },
-  // beforeRouteLeave(to, from, next) {
-  //   if (this.packing_list.tableData.data) {
-  //     if (confirm("确定离开吗？") == true) {
-  //       next()   //跳转到另一个路由
-  //     } else {
-  //       next(false);//不跳转
-  //     }
-  //   } else {
-  //     next()   //跳转到另一个路由
-  //   }
-  // },
 
   created() {
-    this.dataInit()
     let _this = this
     // 页面刷新跳转主页面
     window.addEventListener('load', function () {
@@ -213,28 +223,10 @@ export default {
       }
       this.$store.dispatch('getTaskParam', params).then((data) => { })
     }
-    // window.onbeforeunload = function (e) {
-    //   if (_this.$route.path == "/package_management/packing_list/detailsPage") {
-    //     alert(111111111111)
-    //   _this.$router.push({ name: 'mainPage' })
-    //     // e = e || window.event;
-    //     // // 兼容IE8和Firefox 4之前的版本
-    //     // if (e) {
-    //     //   e.returnValue = '关闭提示1111';
-    //     // }
-    //     // // Chrome, Safari, Firefox 4+, Opera 12+ , IE 9+
-    //     // return '关闭提示222';
-    //   } else {
-    //     window.onbeforeunload = null
-    //   }
-    // };
   },
   computed: {
     packing_list() {
       return this.$store.state.packing_list
-    },
-    certificate_list() {
-      return this.$store.state.certificate_list
     },
   },
 
@@ -242,23 +234,37 @@ export default {
     goBack() {
       this.$router.push({ path: 'mainPage' })
     },
-    // 添加证书
-    addCertificate() {
-      if (!this.certificate_list.tableData.length) {
-        this.packing_list.uploadCertificateDialog = true;
-      }
-    },
     //上传证书
     uploadCertificate() {
       this.packing_list.uploadCertificateDialog = true;
     },
     // 切换证书
     switchCertificate() {
-      if (!this.certificate_list.tableData.length) {
+      if (!this.packing_list.certificateList.length) {
         return this.$message({ message: '当前打包任务暂未上传证书,请先上传证书!!!', type: 'warning', duration: 1500 })
       } else {
         this.packing_list.switchCertificateDialog = true;
       }
+    },
+    // 上传母包
+    uploadMotherPackage(){
+      this.packing_list.uploadMotherPackageDialog = true;
+
+    },
+    // 切换母包
+    switchMotherPackage(){
+        this.packing_list.switchMotherPackageDialog = true;
+
+    },
+    // 上传渠道包
+    uploadChannelPackage(){
+      this.packing_list.uploadChannelPackageDialog = true;
+
+    },
+    // 切换渠道包
+    switchChannelPackage(){
+        this.packing_list.switchChannelPackageDialog = true;
+
     },
     // 绑定模板弹窗
     bindingTemplateButton() {
@@ -336,12 +342,6 @@ export default {
       var arr = [100, 100, 150, 100, 120, 100, 100, 160, 190,]
       return arr[i]
     },
-    // 初始化
-    dataInit() {
-      if (this.packing_list.taskConfigParam.sdkPackageCertificate) {
-        this.certificateId = this.packing_list.taskConfigParam.sdkPackageCertificate.certificateId
-      }
-    }
   },
 }
 </script>

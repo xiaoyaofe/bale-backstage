@@ -8,20 +8,30 @@ const packing_list = {
       isComponents:'mainPage',
       tableData:[],
       appList:[],
-      motherPackageList:[],
       addPackageDialog:false,
       filterPackagingDialog:false,
       filterPackagingInfo:{},
       filterTime: [moment().add(-7, 'day').format('YYYY-MM-DD'), moment().add('day').format('YYYY-MM-DD')],
       packageTime: [moment().add(-7, 'day').format('YYYY-MM-DD'), moment().add('day').format('YYYY-MM-DD')],
+      certificateName:"",
+      motherPackageName:"",
+      channelPackageName:"",
+      matchingInfo:{},
       certificateList:[],
+      motherPackageList:[],
+      channelPackageList:[],
       addAppNameEnDialog:false,
       uploadCertificateDialog:false,
+      uploadMotherPackageDialog:false,
+      uploadChannelPackageDialog:false,
       switchCertificateDialog:false,
+      switchMotherPackageDialog:false,
+      switchChannelPackageDialog:false,
       templateName:'',
       bindingTemplateDialog:false,
       appNameEnIndex: '',           //游戏应用下标
       taskConfigParam:[],
+      taskConfigInfo:[],
       sdkPackageIconList:[],
       sdkPackageCertificate:null,
       aIconData: [                   //游戏icon组合
@@ -44,6 +54,9 @@ const packing_list = {
       SET_CONFIG_PACKAGE_DATA(state,data){
         state.taskConfigParam = data
       },
+      SET_CONFIG_PACKAGE_INFO(state,data){
+        state.taskConfigInfo = data
+      },
       SET_FILTER_PACKING_INFO(state,data){
         state.filterPackagingInfo = data
       },
@@ -53,15 +66,34 @@ const packing_list = {
       SET_PACKAGE_TABLE_DATA(state,data){
         state.tableData = data
       },
-      SET_TASK_CONFIG_PARAM(state,data){
-        state.taskConfigParam = data
-      },
       SET_TASK_CONFIG_ICON(state,data){
         state.sdkPackageIconList = data
       },
-      SET_TASK_CONFIG_CERTIFICATE_ID(state,data){
-        state.sdkPackageCertificate = data
+      // SET_TASK_CONFIG_CERTIFICATE_ID(state,data){
+      //   state.sdkPackageCertificate = data
+      // },
+      SET_CERTIFICATE_LIST(state,data){
+        state.certificateList = data
+      },
+      SET_MOTHERPACKAGE_LIST(state,data){
+        state.motherPackageList = data
+      },
+      SET_CHANNELPACKAGE_LIST(state,data){
+        state.channelPackageList = data
+      },
+      SET_CERTIFICATE_NAME(state,data){
+        state.certificateName = data
+      },
+      SET_CHANNELPACKAGE_NAME(state,data){
+        state.channelPackageName = data
+      },
+      SET_MOTHERPACKAGE_NAME(state,data){
+        state.motherPackageName = data
+      },
+      SET_MATCHING_INFO(state,data){
+        state.matchingInfo = data
       }
+      
     },
     actions: {
       // 获取打包任务列表
@@ -101,9 +133,9 @@ const packing_list = {
       getTaskParam({ commit, state, dispatch },params) {
         return new Promise((resolve, reject) => {
           requestData('/task/getTaskParam','post',params).then((data) => {
-            console.log(data);
               // 设置配置信息
-              commit('SET_TASK_CONFIG_PARAM', data.data.sdkPackageConfigList)
+              commit("SET_CONFIG_PACKAGE_INFO",data.data)
+              commit('SET_CONFIG_PACKAGE_DATA', data.data.sdkPackageConfigList)
               // 设置ICON
               commit('SET_TASK_CONFIG_ICON',data.data.sdkPackageIconList)
                 for (let index = 0; index < state.aIconData.length; index++) {
@@ -116,10 +148,13 @@ const packing_list = {
                   state.aIconData[data.data.sdkPackageIconList[index].iconType-1].filePath = data.data.sdkPackageIconList[index].filePath
                 }
               // 设置当前证书
-                commit('SET_TASK_CONFIG_CERTIFICATE_ID',data.data.sdkPackageCertificate)
+                // commit('SET_TASK_CONFIG_CERTIFICATE_ID',data.data.sdkCertificate)
+                commit('SET_CERTIFICATE_LIST',data.data.sdkCertificate)
+                commit('SET_MOTHERPACKAGE_LIST',data.data.sdkBasePackageList)
+                commit('SET_CHANNELPACKAGE_LIST',data.data.sdkChannelPackageList)
               // 获取证书列表
-              var appId = params.appId
-              dispatch('getCertificateList', appId).then((data) => { })
+              // var appId = params.appId
+              // dispatch('getCertificateList', appId).then((data) => { })
               // 获取配置模板
               dispatch('getConfigurationTemplate').then((data) => { })
               
@@ -173,11 +208,33 @@ const packing_list = {
           })
         })
       },
+      // 切换母包
+      bindMotherPackage({ commit, state },params) {
+        return new Promise((resolve, reject) => {
+          requestData('/task/replaceBasePackage','post',params).then((data) => {
+            // commit('SET_TASK_CONFIG_CERTIFICATE_ID', data.data.data)
+            resolve()
+          }).catch(error => {
+            reject(error)
+          })
+        })
+      },
+      // 切换渠道包 
+      bindChannelPackage({ commit, state },params) {
+        return new Promise((resolve, reject) => {
+          requestData('/task/replaceChannelPackage','post',params).then((data) => {
+            // commit('SET_TASK_CONFIG_CERTIFICATE_ID', data.data.data)
+            resolve()
+          }).catch(error => {
+            reject(error)
+          })
+        })
+      },
       // 绑定证书
       bindSdkPackageCertificate({ commit, state },params) {
         return new Promise((resolve, reject) => {
           requestData('/task/addSdkPackageCertificate','post',params).then((data) => {
-            commit('SET_TASK_CONFIG_CERTIFICATE_ID', data.data.data)
+            // commit('SET_TASK_CONFIG_CERTIFICATE_ID', data.data.data)
             resolve()
           }).catch(error => {
             reject(error)
@@ -200,6 +257,17 @@ const packing_list = {
           requestData('/task/getTaskLog','post',params).then((data) => {
             commit('SET_PACKING_RECORD_DATA', data.data.data)
             resolve()
+          }).catch(error => {
+            reject(error)
+          })
+        })
+      },
+      // 删除打包任务
+      deleteTask({ commit, state },params) {
+        return new Promise((resolve, reject) => {
+          requestData('/task/deleteTask','post',params).then((data) => {
+            // commit('SET_PACKING_RECORD_DATA', data.data.data)
+            resolve(data)
           }).catch(error => {
             reject(error)
           })

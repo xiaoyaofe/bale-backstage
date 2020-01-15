@@ -6,6 +6,7 @@ module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
   // BASE_API: '"http://172.16.10.106:8080"',
   // DOWNLOAD_API:'"http://172.16.10.106:8080/pack3/"'
+  // BASE_API: '"http://172.16.10.119:8080"',
   BASE_API: '"http://172.16.3.212:8080"',
   DOWNLOAD_API:'"http://172.16.3.212:8080/pack3/"'
 

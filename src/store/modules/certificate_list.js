@@ -2,7 +2,7 @@ import {requestData,} from '@/api/module'
 
 const certificate_list = {
     state: {
-      tip:'添加',
+      tip:'添加渠道包',
       tableData:[],
     },
     mutations: {

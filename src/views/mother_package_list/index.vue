@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div style="marginBottom:20px">
-      <el-button type="info" plain @click="dialogFormVisible = true">
+      <el-button type="primary"  @click="dialogFormVisible = true">
         <i class="el-icon-plus"/>添加母包
       </el-button>
     </div>
@@ -31,7 +31,7 @@
             :file-list="fileList"
             :auto-upload="false"
           >
-            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <el-button slot="trigger" icon="el-icon-upload el-icon--right" size="small" type="primary">选取文件</el-button>
           </el-upload>
         </el-form-item>
         <el-form-item label="版本号" :label-width="formLabelWidth">
@@ -68,6 +68,20 @@
         <el-form-item label="母包类型" :label-width="formLabelWidth">
           <el-radio v-model="changeInfo.basePackageType" label="0">ios</el-radio>
           <el-radio v-model="changeInfo.basePackageType" label="1">android</el-radio>
+        </el-form-item>
+        <el-form-item label="重新上传母包" :label-width="formLabelWidth">
+          <el-upload
+            class="upload-demo"
+            ref="reUpload"
+            :action="domain+'/basePackage/update'"
+            :data="changeInfo"
+            :on-change="reUploadChange"
+            :on-remove="reUploadRemove"
+            :on-success="reUploadSuccess"
+            :file-list="fileList"
+            :auto-upload="false">
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -116,6 +130,7 @@ export default {
       formLabelWidth: '120px',      //表单长度变量
       dialogFormVisible: false,     //添加框显示/隐藏变量
       changeDataFormVisible: false, //编辑框显示/隐藏变量
+      isChooseApk:false,            //是否选取游戏包
       changeInfo: {                 //编辑框数据体
         versionName: null,
         versionCode: null,
@@ -182,25 +197,23 @@ export default {
     },
     // 编辑框确定按钮触发
     determineChangeData() {
-      var params = {
-        basePackageName: this.tableData[this.changeInfo.index].basePackageName,
-        basePackageId: this.tableData[this.changeInfo.index].basePackageId,
-        appId: this.tableData[this.changeInfo.index].appId,
-        basePackageType: this.changeInfo.basePackageType,
-        versionName: this.changeInfo.versionName,
-        versionCode: this.changeInfo.versionCode,
-        versionDesc: this.changeInfo.versionDesc,
-      }
-      this.$store.dispatch('changeMasterPackageInfo', params).then((data) => {
-        Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
-        this.changeDataFormVisible = false;
-        Object.keys(this.changeInfo).forEach((item) => {
-          if (item === "appId") {
-            this.changeInfo.item = 0
-          }
-          this.changeInfo.item = null
+      this.changeInfo.basePackageName=this.tableData[this.changeInfo.index].basePackageName;
+      this.changeInfo.basePackageId=this.tableData[this.changeInfo.index].basePackageId;
+      this.changeInfo.appId=this.tableData[this.changeInfo.index].appId;
+      if (this.isChooseApk) {//判断是否需要重新上传母包
+        this.$refs.reUpload.submit();
+      }else{
+        this.$store.dispatch('changeMasterPackageInfo', this.changeInfo).then((data) => {
+          Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
+          this.changeDataFormVisible = false;
+          Object.keys(this.changeInfo).forEach((item) => {
+            if (item === "appId") {
+              this.changeInfo.item = 0
+            }
+            this.changeInfo.item = null
+          })
         })
-      })
+      }
     },
     // 编辑按钮触发
     startChange(index, row) {
@@ -246,7 +259,20 @@ export default {
       var arr = [90, 90, 140, 120, 140, 160, 160, , 160]
       return arr[i]
     },
-    // 文件上传成功的钩子函数
+    //新增上传文件监听事件
+    reUploadChange(file){
+      this.isChooseApk=true
+    },
+    reUploadRemove(file){
+      this.isChooseApk=false
+    },
+    // 修改弹窗重新上传母包成功
+    reUploadSuccess(response, file, fileList) {
+      this.fileList = []
+      this.changeDataFormVisible = false;
+      Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
+    },
+    // 添加母包上传成功的钩子函数
     uploadSuccess(response, file, fileList) {
       if (response.code!=200) {
         return Vue.prototype.$message({ message: response,message, type: 'error', duration: 1500 })
@@ -264,7 +290,8 @@ export default {
       this.dialogFormVisible = false
       return Vue.prototype.$message({ message: '添加成功', type: 'success', duration: 1500 })
     }
-  }
+  },
+  
 }
 </script>
 <style lang="scss" scoped>

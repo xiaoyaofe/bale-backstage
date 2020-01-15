@@ -19,8 +19,8 @@
         <el-button slot="append" icon="el-icon-edit-outline" @click="changeTemplateName">修改模板名称</el-button>
       </el-input>
       <el-button
-        type="info"
-        plain
+        type="primary"
+        
         @click="addDataDialog = true;addDataParams=true"
         style="marginLeft:20px"
       >
@@ -28,14 +28,14 @@
         {{_state.configuration_template.tip}}
       </el-button>
       <el-button
-        type="info"
-        plain
+        type="primary"
+        
         @click="addDataDialog = true;addDataParams=false"
         style="marginLeft:20px"
       >
         <i class="el-icon-plus"/>添加模板参数
       </el-button>
-      <el-button type="info" plain @click="copyDataDialog=true" style="marginLeft:20px">
+      <el-button type="primary"  @click="copyDataDialog=true" style="marginLeft:20px">
         <i class="el-icon-document-copy"/>&nbsp;复制摸板
       </el-button>
       <el-button type="danger" plain @click="deleteTemplate" style="marginLeft:20px">
@@ -43,7 +43,7 @@
       </el-button>
     </div>
     <!-- 添加数据弹出框 -->
-    <el-dialog title="添加数据" :visible.sync="addDataDialog" @close="cancelAddTemplate">
+    <el-dialog :title="addDataParams?'添加模板':'添加模板参数'" :visible.sync="addDataDialog" @close="cancelAddTemplate">
       <el-form>
         <el-form-item label="模板名称" :label-width="formLabelWidth">
           <el-input v-if="addDataParams" v-model="addConfigurationTemplate.templateName"></el-input>
@@ -53,11 +53,14 @@
             disabled
           ></el-input>
         </el-form-item>
-        <el-form-item v-if="!addDataParams" label="配置参数名称" :label-width="formLabelWidth">
+        <el-form-item v-if="!addDataParams" label="配置参数描述" :label-width="formLabelWidth">
           <el-input v-model="addConfigurationTemplate.configName"></el-input>
         </el-form-item>
         <el-form-item v-if="!addDataParams" label="配置参数key值" :label-width="formLabelWidth">
           <el-input v-model="addConfigurationTemplate.configKey"></el-input>
+        </el-form-item>
+        <el-form-item v-if="!addDataParams" label="配置参数value值" :label-width="formLabelWidth">
+          <el-input v-model="addConfigurationTemplate.configValue"></el-input>
         </el-form-item>
         <el-form-item v-if="!addDataParams" label="配置参数类型" :label-width="formLabelWidth">
           <el-radio v-model="configType" label="0">string</el-radio>
@@ -69,14 +72,17 @@
         <el-button type="primary" @click="determineAddTemplate">确 定</el-button>
       </div>
     </el-dialog>
-    <!-- 配置参数弹出框 -->
+    <!-- 修改参数弹出框 -->
     <el-dialog title="修改模板参数" :visible.sync="changeDataDialog" @close="changeDataDialog = false">
       <el-form>
-        <el-form-item label="配置参数名称" :label-width="formLabelWidth">
+        <el-form-item label="配置参数描述" :label-width="formLabelWidth">
           <el-input v-model="changeInfo.configName"></el-input>
         </el-form-item>
         <el-form-item label="配置参数key值" :label-width="formLabelWidth">
           <el-input v-model="changeInfo.configKey"></el-input>
+        </el-form-item>
+        <el-form-item label="配置参数value值" :label-width="formLabelWidth">
+          <el-input v-model="changeInfo.configValue"></el-input>
         </el-form-item>
         <el-form-item label="配置参数类型" :label-width="formLabelWidth">
           <el-radio v-model="changeInfo.configType" label="0">string</el-radio>
@@ -120,11 +126,12 @@
       fit
       highlight-current-row>
       <el-table-column
-        v-for="(item, i) in (Object.keys(tableData[0]?tableData[0]:{}))"
+        v-for='(item, i) in tableHead.order'
+        v-if="item"
         :key="i"
         :sortable="i==0"
         :prop="item"
-        :label="tableHead[i]"
+        :label="tableHead[item]"
       ></el-table-column>
       <el-table-column label="操作" align="center" width="300px">
         <template slot-scope="scope">
@@ -163,15 +170,25 @@ export default {
         templateName: '',
         configName: "",
         configKey: "",
+        configValue:"",
         configType: '',
       },
       addConfigurationTemplate: { //添加参数数据体
         templateName: '',     //模板名称
         configName: '',       //配置参数名称
         configKey: '',        //配置参数key值
+        configValue:"",       //配置参数value值
       },
-      tableHead: ['模板ID', '模板名称', '配置参数名称', '配置参数key值', '配置参数类型', '创建时间',], //自定义表头参数
-      
+      tableHead: {
+        order:["configId","templateName","configName","configKey","configValue","configType","createTime"],
+        configId:'模板id',
+        templateName:'模板名称',
+        configName:'配置参数描述',
+        configKey:'配置参数key值',
+        configValue:'配置参数Value值',
+        configType:'配置参数类型',
+        createTime:'创建时间',
+      },//自定义表头参数
     }
   },
   mounted() {
@@ -244,10 +261,15 @@ export default {
         this.addConfigurationTemplate.templateName = this.selectTemplateData[this.templateIndex].templateName
       }
       // 判断参数类型
-      if (this.configType === '1') {
-        this.addConfigurationTemplate.configType = 'param'
-      } else {
-        this.addConfigurationTemplate.configType = 'string'
+      switch (+this.configType) {
+        case 0:
+          this.addConfigurationTemplate.configType = 'string'
+          break;
+        case 1:
+          this.addConfigurationTemplate.configType = 'param'
+          break;
+        default:
+          break;
       }
       var params = this.addConfigurationTemplate;
       this.$store.dispatch('addConfigurationTemplate', params).then((data) => {
@@ -269,6 +291,7 @@ export default {
       this.changeInfo.templateName = this.tableData[index].templateName;
       this.changeInfo.configId = this.tableData[index].configId;
       this.changeInfo.configKey = this.tableData[index].configKey;
+      this.changeInfo.configValue = this.tableData[index].configValue;
       this.changeInfo.configType = this.tableData[index].configType == "string" ? '0' : '1';
       this.changeDataDialog = true;
     },

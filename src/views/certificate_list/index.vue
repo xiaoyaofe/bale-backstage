@@ -1,9 +1,8 @@
 <template>
   <div class="app-container">
     <div style="marginBottom:20px">
-      <el-button type="info" plain @click="addCertificateDialog = true">
-        <i class="el-icon-plus"/>
-        {{_state.certificate_list.tip}}
+      <el-button type="primary" @click="addCertificateDialog = true">
+        <i class="el-icon-plus"/>添加证书
       </el-button>
     </div>
     <!-- 添加数据弹出框 -->
@@ -38,7 +37,7 @@
             :file-list="fileList"
             :auto-upload="false"
           >
-            <el-button slot="trigger" size="small" type="primary">选取证书文件</el-button>
+            <el-button slot="trigger" size="small" icon="el-icon-upload el-icon--right" type="primary">选取文件</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -61,6 +60,21 @@
         </el-form-item>
         <el-form-item label="别名密码" :label-width="formLabelWidth">
           <el-input v-model="changeInfo.aliasPassword"></el-input>
+        </el-form-item>
+         <el-form-item label="重新上传证书" :label-width="formLabelWidth">
+          <el-upload
+            class="upload-demo"
+            ref="reUpload"
+            :action="domain+'/certificate/update'"
+            :data="changeInfo"
+            :on-change="reUploadChange"
+            :on-remove="reUploadRemove"
+            :on-success="reUploadSuccess"
+            :file-list="fileList"
+            :auto-upload="false"
+          >
+            <el-button slot="trigger" size="small" type="primary">选取证书</el-button>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -104,6 +118,7 @@ export default {
       tableData: [],                    //表格数据
       fileList: [],                     //证书上传列表
       editDataFormVisible: false,       //编辑证书对话框变量
+      isChooseApk:false,            //是否选取游戏包
       addCertificateListData: {         //添加证书传递参数
         appId: '',//应用ID
         alias: '',//别名
@@ -161,21 +176,19 @@ export default {
     },
     // 编辑数据
     changeData() {
-      var params = {
-        certificateId: this.tableData[this.changeInfo.index].certificateId,
-        appId: this.tableData[this.changeInfo.index].appId,
-        certificateName: this.changeInfo.certificateName,
-        certificatePassword: this.changeInfo.certificatePassword,
-        alias: this.changeInfo.alias,
-        aliasPassword: this.changeInfo.aliasPassword,
-      }
-      this.$store.dispatch('changeCertificateList', params).then((data) => {
-        Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
-        this.editDataFormVisible = false;
-        Object.keys(this.changeInfo).forEach((item) => {
-          this.changeInfo.item = null
+      this.changeInfo.certificateId = this.tableData[this.changeInfo.index].certificateId;
+      this.changeInfo.appId = this.tableData[this.changeInfo.index].appId;
+      if (this.isChooseApk) {//判断是否需要重新上传母包
+        this.$refs.reUpload.submit();
+      }else{
+        this.$store.dispatch('changeCertificateList', this.changeInfo).then((data) => {
+          Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
+          this.editDataFormVisible = false;
+          Object.keys(this.changeInfo).forEach((item) => {
+            this.changeInfo.item = null
+          })
         })
-      })
+      }
     },
     // 编辑数据下标
     startChange(index, row) {
@@ -222,9 +235,22 @@ export default {
         return Vue.prototype.$message({ message: '添加成功', type: 'success', duration: 1500 })
       } else {
         return Vue.prototype.$message({ message: response.message, type: 'error', duration: 1500 })
-
       }
-
+    },
+    //新增上传文件监听事件
+    reUploadChange(file){
+      this.isChooseApk=true
+    },
+    reUploadRemove(file){
+      this.isChooseApk=false
+    },
+    // 修改弹窗重新上传母包成功
+    reUploadSuccess(response, file, fileList) {
+      this.fileList = []
+      this.editDataFormVisible = false;
+      this.$store.dispatch('getCertificateList').then(()=>{
+        Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
+      })
     },
     // 设置表格列宽
     getWidth(i) {

@@ -1,11 +1,14 @@
-# 服务器部署目录
+# 服务器部署
   ### 172.16.3.212
     远程登录账号密码
       userName: administrator
       password: Aa1234567!
   [线上地址:http://172.16.3.212:8081/#/package_management/game_list](http://172.16.3.212:8081/#/)
 
-# vue-admin-template
+  [代码仓库:http://gitsrv01.royale.com/front-end/bale_backstage](http://gitsrv01.royale.com/front-end/bale_backstage)
+
+
+# 打包管理系统
 
 
 
@@ -29,9 +32,6 @@ npm run build
 npm run build --report
 ```
 
-## Demo
-
-![demo](https://github.com/PanJiaChen/PanJiaChen.github.io/blob/master/images/demo.gif)
 
 ### Element-Ui 使用 cdn 教程
 
@@ -54,20 +54,4 @@ externals: {
 如图：
 ![demo](https://panjiachen.github.io/images/element-cdn.png)
 
-**[具体代码](https://github.com/PanJiaChen/vue-admin-template/commit/746aff560932704ae821f82f10b8b2a9681d5177)**
 
-**[对应分支](https://github.com/PanJiaChen/vue-admin-template/tree/element-ui-cdn)**
-
-## Browsers support
-
-Modern browsers and Internet Explorer 10+.
-
-| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari |
-| --------- | --------- | --------- | --------- |
-| IE10, IE11, Edge| last 2 versions| last 2 versions| last 2 versions
-
-## License
-
-[MIT](https://github.com/PanJiaChen/vue-admin-template/blob/master/LICENSE) license.
-
-Copyright (c) 2017-present PanJiaChen

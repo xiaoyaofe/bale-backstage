@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div style="marginBottom:20px">
-      <el-button type="info" plain @click="addChannelPackageDialog = true">
+      <el-button type="primary" @click="addChannelPackageDialog = true">
         <i class="el-icon-plus"/>
         {{_state.certificate_list.tip}}
       </el-button>
@@ -32,7 +32,7 @@
             :file-list="fileList"
             :auto-upload="false"
           >
-            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <el-button slot="trigger" icon="el-icon-upload el-icon--right" size="small" type="primary">选取文件</el-button>
             <div slot="tip" class="el-upload__tip">只能上传zip文件</div>
           </el-upload>
         </el-form-item>
@@ -57,6 +57,22 @@
         <el-form-item label="系统" :label-width="formLabelWidth">
           <el-radio v-model="changeInfo.os" label="0">ios</el-radio>
           <el-radio v-model="changeInfo.os" label="1">android</el-radio>
+        </el-form-item>
+        <el-form-item label="重新上传渠道包" :label-width="formLabelWidth">
+          <el-upload
+            class="upload-demo"
+            ref="reUpload"
+            :action="domain+'/channelPackage/update'"
+            :data="changeInfo"
+            :on-change="reUploadChange"
+            :on-remove="reUploadRemove"
+            :on-success="reUploadSuccess"
+            :file-list="fileList"
+            :auto-upload="false"
+          >
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传zip文件</div>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -175,20 +191,25 @@ export default {
     },
     // 确定修改编辑数据
     determineEditData() {
-      var params = {
-        channelId: this.changeInfo.channelId,
-        channelPackageId: this.tableData[this.changeInfo.index].channelPackageId,
-        sdkName: this.changeInfo.sdkName,
-        channelPackageName: this.changeInfo.channelPackageName,
-        os: this.changeInfo.os,
-      }
-      this.$store.dispatch('changeChannelPackage', params).then((data) => {
-        Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
-        this.editChannelPackageDialog = false;
-        Object.keys(this.changeInfo).forEach((item) => {
-          this.changeInfo.item = null
+      // var params = {
+      //   channelId: this.changeInfo.channelId,
+      //   channelPackageId: this.tableData[this.changeInfo.index].channelPackageId,
+      //   sdkName: this.changeInfo.sdkName,
+      //   channelPackageName: this.changeInfo.channelPackageName,
+      //   os: this.changeInfo.os,
+      // }
+      this.changeInfo.channelPackageId= this.tableData[this.changeInfo.index].channelPackageId;
+       if (this.isChooseApk) {//判断是否需要重新上传母包
+        this.$refs.reUpload.submit();
+      }else{
+        this.$store.dispatch('changeChannelPackage', this.changeInfo).then((data) => {
+          Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
+          this.editChannelPackageDialog = false;
+          Object.keys(this.changeInfo).forEach((item) => {
+            this.changeInfo.item = null
+          })
         })
-      })
+      }
     },
     // 编辑按钮触发
     startChange(index, row) {
@@ -244,6 +265,21 @@ export default {
         return cellValue ? 'android' : 'ios'
       }
       return cellValue
+    },
+    //新增上传文件监听事件
+    reUploadChange(file){
+      this.isChooseApk=true
+    },
+    reUploadRemove(file){
+      this.isChooseApk=false
+    },
+    // 修改弹窗重新上传母包成功
+    reUploadSuccess(response, file, fileList) {
+      this.fileList = []
+      this.editChannelPackageDialog = false;
+      this.$store.dispatch('getChannelPackage').then(()=>{
+        Vue.prototype.$message({ message: '编辑成功', type: 'success', duration: 1500 })
+      })
     },
     // 设置表格列宽
     getWidth(i) {
