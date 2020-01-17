@@ -31,7 +31,7 @@
           <el-upload
             class="upload-demo"
             ref="upload"
-            :action="domain+'/certificate/add'"
+            :action="uploadDomain+'/certificate/add'"
             :data="addCertificateListData"
             :on-success="uploadSuccess"
             :file-list="fileList"
@@ -49,9 +49,6 @@
     <!-- 编辑数据弹出框 -->
     <el-dialog title="编辑数据" :visible.sync="editDataFormVisible">
       <el-form>
-        <el-form-item label="证书名称" :label-width="formLabelWidth">
-          <el-input disabled v-model="changeInfo.certificateName"></el-input>
-        </el-form-item>
         <el-form-item label="证书密码" :label-width="formLabelWidth">
           <el-input v-model="changeInfo.certificatePassword"></el-input>
         </el-form-item>
@@ -65,7 +62,7 @@
           <el-upload
             class="upload-demo"
             ref="reUpload"
-            :action="domain+'/certificate/update'"
+            :action="uploadDomain+'/certificate/update'"
             :data="changeInfo"
             :on-change="reUploadChange"
             :on-remove="reUploadRemove"
@@ -98,9 +95,10 @@
         :prop="item"
         :label="tableHead[i]"
       ></el-table-column>
-      <el-table-column label="操作" width="220" align="center">
+      <el-table-column label="操作" width="300" align="center">
         <template slot-scope="scope">
           <el-button type="primary" plain @click="startChange(scope.$index, scope.row)">编辑</el-button>
+          <el-button type="warning" plain @click="downloadFile(scope.$index, scope.row)">下载证书</el-button>
           <el-button type="danger" plain @click="deleteData(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -113,7 +111,8 @@ import Vue from 'vue'
 export default {
   data() {
     return {
-      domain: process.env.BASE_API,     //证书上传域名
+      downloadDomain: process.env.DOWNLOAD_API, //下载域名
+      uploadDomain: process.env.BASE_API,     //证书上传域名
       tableLoading: true,               //表格加载loading
       tableData: [],                    //表格数据
       fileList: [],                     //证书上传列表
@@ -129,7 +128,6 @@ export default {
       changeInfo: {                     //编辑证书传递参数
         alias: null,
         aliasPassword: null,
-        certificateName: null,
         certificatePassword: null,
         index: null,
       },
@@ -194,10 +192,13 @@ export default {
     startChange(index, row) {
       this.changeInfo.alias = this.tableData[index].alias;
       this.changeInfo.aliasPassword = this.tableData[index].aliasPassword;
-      this.changeInfo.certificateName = this.tableData[index].certificateName;
       this.changeInfo.certificatePassword = this.tableData[index].certificatePassword;
       this.changeInfo.index = index;
       this.editDataFormVisible = true;
+    },
+    // 下载证书
+    downloadFile(index,row){
+      window.open(this.downloadDomain + row.filePath)
     },
     // 删除数据
     deleteData(index, row) {

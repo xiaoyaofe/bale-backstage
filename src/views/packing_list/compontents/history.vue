@@ -30,16 +30,17 @@
       border
       highlight-current-row>
       <el-table-column
-        v-for="(item, i) in (Object.keys(packing_list.packingRecordData[0]?packing_list.packingRecordData[0]:{}))"
-        v-if="i!=9"
+        v-for="(item, i) in tableHead.order"
+        v-if="!['certificatePath'].includes(item)"
         :key="i"
         :sortable="i==0||i==1"
         :prop="item"
-        :label="tableHead[i]"
+        :label="tableHead[item]"
       ></el-table-column>
-      <el-table-column label="操作" width="120" align="center" fixed="right">
+      <el-table-column label="操作" width="240" align="center" fixed="right">
         <template slot-scope="scope">
-          <el-button type="success" plain @click="startChange(scope.$index, scope.row)">下载</el-button>
+          <el-button type="warning" plain @click="downloadFile(scope.$index, scope.row)">下载证书</el-button>
+          <el-button type="success" plain @click="startChange(scope.$index, scope.row)">下载包</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -52,12 +53,26 @@ import moment from 'moment'
 export default {
   data() {
     return {
-      domain: process.env.DOWNLOAD_API, //下载域名
+      downloadDomain: process.env.DOWNLOAD_API, //下载域名
       tableData: [],                    //表格数据
       inputAppName: '',                 //筛选文本
       packageTime: '',                  //筛选时间
       tableLoading: true,               //loading加载变量
-      tableHead: ['主键ID', '任务ID', '任务名称', '应用名称', '渠道包名称', '母包名称', '渠道', 'sdk标识', '证书名称', '存储路径', '创建时间',]
+      tableHead: {
+        order:["taskLogId","taskId","taskName","appName","channelPackageName","basePackageName",
+               "channelId","sdkName","certificateName","certificatePath","createTime"],
+        taskLogId:"主键ID",
+        taskId:"任务ID",
+        taskName:"任务名称",
+        appName:"应用名称",
+        channelPackageName:"渠道包名称",
+        basePackageName:"母包名称",
+        channelId:"渠道ID",
+        sdkName:"sdk标识",
+        certificateName:"证书名称",
+        certificatePath:"存储路径",
+        createTime:"创建时间",
+      }
     }
   },
   created() {
@@ -98,9 +113,13 @@ export default {
         Vue.prototype.$message({ message: '请输入应用名称', type: 'warning', duration: 1500 })
       }
     },
+    // 下载证书
+    downloadFile(index,row){
+      window.open(this.downloadDomain + row.certificatePath)
+    },
     // 点击下载按钮触发
     startChange(index, row) {
-      window.open(this.domain + this.packing_list.packingRecordData[index].filePath)
+      window.open(this.downloadDomain + row.filePath)
     },
     // 查询数据
     queryPackageList() {

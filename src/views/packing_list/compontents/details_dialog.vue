@@ -94,8 +94,6 @@
       <el-form>
         <el-form-item label="应用名称" :label-width="formLabelWidth">
           <el-input disabled :placeholder="packing_list.tableData.data[$route.query.index].appName"></el-input>
-        </el-form-item><el-form-item label="证书名称" :label-width="formLabelWidth">
-          <el-input v-model="addCertificateListData.certificateName"></el-input>
         </el-form-item>
         <el-form-item label="证书密码" :label-width="formLabelWidth">
           <el-input v-model="addCertificateListData.certificatePassword"></el-input>
@@ -224,7 +222,6 @@ export default {
       addCertificateListData: {
         appId: 0,//应用ID
         alias: '',//别名
-        certificateName: '', //证书名称
         certificatePassword: '',//证书密码
         aliasPassword: '',//别名密码
         appNameEn: '',//应用英文名

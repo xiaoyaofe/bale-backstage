@@ -190,6 +190,7 @@ export default {
     // 确定添加打包任务
     determineAddPackage() {      
       if (Object.values(this.addPackageInfo).every(v => !!v)) {
+      // if (this.addPackageInfo.taskName && this.addPackageInfo.appId) {
         this.$store.dispatch('submitPackageTask', this.addPackageInfo).then((data) => {
           Object.keys(this.addPackageInfo).forEach((item) => this.addPackageInfo[item] = '')
           this.packing_list.addPackageDialog = false;

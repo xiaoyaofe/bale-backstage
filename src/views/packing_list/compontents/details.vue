@@ -98,28 +98,29 @@
               v-if="i!=7"
               :sortable="i==0||i==1"
               :prop="item"
-              :label="tableHead[i]"
+              :label="tableHead.order[i]"
             ></el-table-column>
             <el-table-column
               v-for="(item, i) in (Object.keys(packing_list.taskConfigParam[0]?packing_list.taskConfigParam[0]:{}))"
               v-if="i===7"
               :key="i"
-              :label="tableHead[i]"
+              :label="tableHead.order[i]"
+              width="360"
             >
               <template slot-scope="row">
                 <template v-if="row.$index == changeConfigIndex">
                   <el-input v-model="configValue" class="edit-input" size="small"/>
                   <el-button
+                    style="marginLeft:0"
                     v-if="row.$index == changeConfigIndex"
                     type="success"
                     size="small"
-                    icon="el-icon-circle-check-outline"
                     @click="confirmEdit(row)"
                   >提交</el-button>
                   <el-button
+                    style="margin: 0;margin-right: 5px;"
                     class="cancel-btn"
                     size="small"
-                    icon="el-icon-refresh"
                     type="warning"
                     @click="cancelEdit"
                   >取消</el-button>
@@ -191,7 +192,6 @@ export default {
     return {
       domain: process.env.BASE_API,
       certificateId: '',
-      tableHead: [],
       listLoading: false,
       changeConfigIndex: -1,
       configValue: '',
@@ -203,7 +203,17 @@ export default {
         id: '',
         file: '',
       },
-      tableHead: ['主键ID', '任务ID', '模板名称', '模板ID', '配置名称', '配置key值', '配置类型', '参数值', '创建时间']
+      tableHead:{
+        order:['主键ID', '任务ID', '模板名称', '模板ID', '配置名称', '配置key值', '配置类型', '参数值', '创建时间'],
+        id:"主键ID",
+        taskId:"任务ID",
+        templateName:"模板名称",
+        configId:"模板ID",
+        configName:"配置名称",
+        configKey:"配置key值",
+        configType:"配置类型",
+        createTime:"创建时间"
+      }
     }
   },
 

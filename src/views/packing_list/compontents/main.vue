@@ -33,13 +33,11 @@
       highlight-current-row
     >
       <el-table-column
-        v-for="(item, i) in (Object.keys((packing_list.tableData.data&&packing_list.tableData.data[0])?packing_list.tableData.data[0]:[]))"
+        v-for="(item, i) in tableHead.order"
         :key="i"
-        v-if="[0,1,2,3,5,7,8,9,11,12,13].includes(i)"
         :sortable="i==0"
         :prop="item"
-        :label="tableHead[i]"
-        :width="getWidth(i)"
+        :label="tableHead[item]"
       ></el-table-column>
       <el-table-column label="操作" width="220" align="center" fixed="right">
         <template slot-scope="scope">
@@ -69,22 +67,22 @@ export default {
       tableLoading: true, //表格loading变量
       isLoading: false, //打包loading变量
       tableData: [], //表格数据
-      tableHead: [
-        "任务ID",
-        "任务名称",
-        "应用ID",
-        "应用名称",
-        "渠道包ID",
-        "渠道包名称",
-        "母包ID",
-        "母包名称",
-        "渠道",
-        "sdk标识",
-        "证书ID",
-        "证书名称",
-        "任务状态",
-        "构建时间"
-      ]
+      tableHead: {
+        order:["taskId","taskName","appName","channelId","channelPackageId","channelPackageName","basePackageId",
+               "basePackageName","certificateId","certificateName","taskStatus","modifyTime"],
+        taskId:"任务ID",
+        taskName:"任务名称",
+        appName:"应用名称",
+        channelPackageId:"渠道包ID",
+        channelPackageName:"渠道包名称",
+        basePackageId:"母包ID",
+        basePackageName:"母包名称",
+        channelId:"渠道ID",
+        certificateId:"证书ID",
+        certificateName:"证书名称",
+        taskStatus:"任务状态",
+        modifyTime:"构建时间",
+      },
     };
   },
   computed: {
