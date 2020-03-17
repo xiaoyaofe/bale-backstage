@@ -126,8 +126,8 @@ export default {
         };
         this.$store.dispatch('deleteTask', params).then((data) => {
           var paramInfo = {
-          endDate: this.packing_list.filterTime[1],
-          beginDate: this.packing_list.filterTime[0],
+          // endDate: this.packing_list.filterTime[1],
+          // beginDate: this.packing_list.filterTime[0],
           appId: 0,
           basePackageId: 0,
           channelPackageId: 0,

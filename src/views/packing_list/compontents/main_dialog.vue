@@ -1,13 +1,13 @@
 <template>
   <div>
     <!-- 日期 -->
-    <el-date-picker
+    <!-- <el-date-picker
         v-model="filterTime"
         type="daterange"
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期"
-      ></el-date-picker>
+      ></el-date-picker> -->
     <!-- 筛选打包任务弹窗 -->
     <el-dialog
       title="筛选打包任务"
@@ -213,8 +213,8 @@ export default {
     // 查询方法
     queryPackageList() {
       var params = {
-        endDate: this.packing_list.filterTime[1],
-        beginDate: this.packing_list.filterTime[0],
+        // endDate: this.packing_list.filterTime[1],
+        // beginDate: this.packing_list.filterTime[0],
         appId: +this.filterPackagingInfo.appId,
         basePackageId: +this.filterPackagingInfo.basePackageId,
         channelPackageId: +this.filterPackagingInfo.channelPackageId,
